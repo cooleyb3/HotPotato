@@ -1,8 +1,0 @@
-scripts/
-contracts/
-hardhat.config.ts
-.env
-.env.example
-*.md
-!README.md
-farcaster-docs/
