@@ -192,26 +192,29 @@ export const useContract = () => {
               const authResult = await sdk.actions.signIn({ nonce: 'hot-potato-game' });
               
               if (authResult) {
-                console.log('Sign In successful, now fetching user data...');
+                console.log('Sign In successful, auth result received:', authResult);
                 
-                // Use quickAuth.fetch() to get user data with the JWT token
-                const userData = await sdk.quickAuth.fetch();
-                
-                if (userData && userData.user) {
-                  const realUser = {
-                    fid: userData.user.fid,
-                    username: userData.user.username || 'unknown',
-                    displayName: userData.user.displayName || userData.user.username || 'Unknown User',
-                    pfp: userData.user.pfpUrl || '/abstract-geometric-shapes.png',
-                    wallet: address,
-                  };
+                // The authResult might contain user data directly
+                // Let's check if it has user information
+                if (typeof authResult === 'object' && authResult !== null) {
+                  const userData = authResult as any;
                   
-                  setUser(realUser);
-                  console.log('Real Farcaster user data loaded via Quick Auth:', realUser);
-                  return;
-                } else {
-                  console.log('Quick Auth returned no user data, trying context fallback...');
+                  if (userData.fid || userData.user?.fid) {
+                    const realUser = {
+                      fid: userData.fid || userData.user?.fid,
+                      username: userData.username || userData.user?.username || 'unknown',
+                      displayName: userData.displayName || userData.user?.displayName || userData.username || 'Unknown User',
+                      pfp: userData.pfpUrl || userData.user?.pfpUrl || '/abstract-geometric-shapes.png',
+                      wallet: address,
+                    };
+                    
+                    setUser(realUser);
+                    console.log('Real Farcaster user data loaded from auth result:', realUser);
+                    return;
+                  }
                 }
+                
+                console.log('No user data in auth result, trying context fallback...');
               }
               
               // Fallback: try to get user data from context
