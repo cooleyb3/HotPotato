@@ -89,7 +89,12 @@ dist
 
 # Gatsby files
 .cache/
-public
+
+# Public folder - include all images for Farcaster deployment
+# Only exclude temporary/development files
+public/temp/
+public/dev/
+public/test/
 
 # Storybook build outputs
 .out
