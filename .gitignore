@@ -205,3 +205,5 @@ back-end dev plan.md
 # Lock files (keep only one)
 pnpm-lock.yaml
 yarn.lock
+
+.vercel
