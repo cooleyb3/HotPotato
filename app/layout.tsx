@@ -27,7 +27,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${pressStart2P.variable} ${inter.variable}`}>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased" suppressHydrationWarning={true}>{children}</body>
     </html>
   )
 }

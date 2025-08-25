@@ -12,9 +12,7 @@ const nextConfig = {
   images: {
     domains: ['hot-potato-game.vercel.app'],
   },
-  experimental: {
-    appDir: true,
-  },
+
 };
 
 module.exports = nextConfig;

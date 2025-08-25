@@ -2,7 +2,8 @@ import hre from "hardhat";
 
 async function main() {
   const [deployer] = await hre.viem.getWalletClients();
-  const balance = await hre.viem.getPublicClient().getBalance({ address: deployer.account.address });
+  const publicClient = await hre.viem.getPublicClient();
+  const balance = await publicClient.getBalance({ address: deployer.account.address });
   
   console.log("Deployer address:", deployer.account.address);
   console.log("Balance:", hre.viem.formatEther(balance), "ETH");
