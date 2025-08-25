@@ -184,58 +184,63 @@ export const useContract = () => {
           const isInMiniapp = await sdk.isInMiniApp();
           
           if (isInMiniapp) {
-            // Try to get user data using Quick Auth
+            // Use Quick Auth to get real user data
             try {
               console.log('Attempting Quick Auth to get user data...');
+              
+              // First, sign in to get the JWT token
               const authResult = await sdk.actions.signIn({ nonce: 'hot-potato-game' });
               
               if (authResult) {
-                console.log('Quick Auth successful:', authResult);
+                console.log('Sign In successful, now fetching user data...');
                 
-                // The authResult contains the JWT token
-                // We need to decode it to get user information
-                // For now, we'll use the wallet address and try to get user info
-                // In a real implementation, you would decode the JWT on your backend
+                // Use quickAuth.fetch() to get user data with the JWT token
+                const userData = await sdk.quickAuth.fetch();
                 
-                // Try to get user data from context if available
-                let farcasterUser = null;
-                try {
-                  const context = await sdk.context;
-                  if (context?.user) {
-                    farcasterUser = context.user;
-                  } else if (context?.location && 'cast' in context.location && context.location.cast?.author) {
-                    farcasterUser = context.location.cast.author;
-                  }
-                } catch (contextError) {
-                  console.log('Error accessing SDK context:', contextError);
-                }
-                
-                if (farcasterUser) {
+                if (userData && userData.user) {
                   const realUser = {
-                    fid: farcasterUser.fid,
-                    username: farcasterUser.username || 'unknown',
-                    displayName: farcasterUser.displayName || 'Unknown User',
-                    pfp: farcasterUser.pfpUrl || '/abstract-geometric-shapes.png',
+                    fid: userData.user.fid,
+                    username: userData.user.username || 'unknown',
+                    displayName: userData.user.displayName || userData.user.username || 'Unknown User',
+                    pfp: userData.user.pfpUrl || '/abstract-geometric-shapes.png',
                     wallet: address,
                   };
                   
                   setUser(realUser);
-                  console.log('Farcaster user data loaded via Quick Auth:', realUser);
+                  console.log('Real Farcaster user data loaded via Quick Auth:', realUser);
+                  return;
                 } else {
-                  // Quick Auth succeeded but no user data in context
-                  // This might happen if we need to decode the JWT
-                  console.log('Quick Auth succeeded but no user data in context, using mock data');
-                  const mockUser = {
-                    fid: 12345,
-                    username: 'cryptoking',
-                    displayName: 'Crypto King',
-                    pfp: '/crypto-king-profile.png',
-                    wallet: address,
-                  };
-                  setUser(mockUser);
+                  console.log('Quick Auth returned no user data, trying context fallback...');
                 }
+              }
+              
+              // Fallback: try to get user data from context
+              let farcasterUser = null;
+              try {
+                const context = await sdk.context;
+                if (context?.user) {
+                  farcasterUser = context.user;
+                } else if (context?.location && 'cast' in context.location && context.location.cast?.author) {
+                  farcasterUser = context.location.cast.author;
+                }
+              } catch (contextError) {
+                console.log('Error accessing SDK context:', contextError);
+              }
+                
+              if (farcasterUser) {
+                const realUser = {
+                  fid: farcasterUser.fid,
+                  username: farcasterUser.username || 'unknown',
+                  displayName: farcasterUser.displayName || 'Unknown User',
+                  pfp: farcasterUser.pfpUrl || '/abstract-geometric-shapes.png',
+                  wallet: address,
+                };
+                
+                setUser(realUser);
+                console.log('Farcaster user data loaded via context fallback:', realUser);
               } else {
-                console.log('Quick Auth failed or returned no data, using mock data');
+                // If all else fails, use mock data
+                console.log('No user data available, using mock data');
                 const mockUser = {
                   fid: 12345,
                   username: 'cryptoking',
