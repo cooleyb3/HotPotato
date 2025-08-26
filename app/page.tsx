@@ -87,7 +87,7 @@ export default function HotPotatoGame() {
       
       // Add to history with temporary message
       const newHistoryEntry = {
-        newHolder: account.slice(0, 6) + '...' + account.slice(-4),
+        newHolder: account ? account.slice(0, 6) + '...' + account.slice(-4) : 'Unknown',
         previousHolder: previousHolder === '0x0000000000000000000000000000000000000000' 
           ? 'No one' 
           : previousHolder.slice(0, 6) + '...' + previousHolder.slice(-4),
@@ -146,7 +146,7 @@ export default function HotPotatoGame() {
       
       // Add game start to history
       const newHistoryEntry = {
-        newHolder: account.slice(0, 6) + '...' + account.slice(-4),
+        newHolder: account ? account.slice(0, 6) + '...' + account.slice(-4) : 'Unknown',
         previousHolder: 'No one',
         message: "Game started! 🎮",
         time: "Just now",
