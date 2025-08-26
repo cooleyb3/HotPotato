@@ -187,7 +187,7 @@ export const useContract = () => {
             // Try to get user data using Quick Auth
             try {
               console.log('Attempting Quick Auth to get user data...');
-              const authResult = await sdk.actions.signIn({});
+              const authResult = await sdk.actions.signIn({ nonce: 'hot-potato-game' });
               
               if (authResult && authResult.data) {
                 console.log('Quick Auth successful:', authResult);
