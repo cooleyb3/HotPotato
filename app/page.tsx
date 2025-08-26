@@ -137,7 +137,9 @@ export default function HotPotatoGame() {
 
   const handleStartGame = async () => {
     if (!isConnected) {
-      await connectWallet()
+      if (connectors.length > 0) {
+        await connect({ connector: connectors[0] })
+      }
       return
     }
     
