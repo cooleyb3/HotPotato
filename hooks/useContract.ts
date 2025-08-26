@@ -177,21 +177,114 @@ export const useContract = () => {
 
   // Update user when wallet connects
   useEffect(() => {
-    if (isConnected && address) {
-      // For now, use mock user data until we get FID from Farcaster
-      const mockUser = {
-        fid: 12345,
-        username: 'cryptoking',
-        displayName: 'Crypto King',
-        pfp: '/crypto-king-profile.png',
-        wallet: address,
-      };
-      
-      setUser(mockUser);
-      console.log('Wallet connected:', address);
-    } else {
-      setUser(null);
-    }
+    const getUserData = async () => {
+      try {
+        if (isConnected && address) {
+          // Check if we're in a Farcaster Miniapp environment
+          const isInMiniapp = await sdk.isInMiniApp();
+          
+          if (isInMiniapp) {
+            // Try to get user data using Quick Auth
+            try {
+              console.log('Attempting Quick Auth to get user data...');
+              const authResult = await sdk.actions.signIn();
+              
+              if (authResult && authResult.data) {
+                console.log('Quick Auth successful:', authResult);
+                
+                // The authResult.data contains the JWT token
+                // We need to decode it to get user information
+                // For now, we'll use the wallet address and try to get user info
+                // In a real implementation, you would decode the JWT on your backend
+                
+                // Try to get user data from context if available
+                let farcasterUser = null;
+                if (sdk.context?.user) {
+                  farcasterUser = sdk.context.user;
+                } else if (sdk.context?.location?.cast?.author) {
+                  farcasterUser = sdk.context.location.cast.author;
+                }
+                
+                if (farcasterUser) {
+                  const realUser = {
+                    fid: farcasterUser.fid,
+                    username: farcasterUser.username || 'unknown',
+                    displayName: farcasterUser.displayName || 'Unknown User',
+                    pfp: farcasterUser.pfpUrl || '/abstract-geometric-shapes.png',
+                    wallet: address,
+                  };
+                  
+                  setUser(realUser);
+                  console.log('Farcaster user data loaded via Quick Auth:', realUser);
+                } else {
+                  // Quick Auth succeeded but no user data in context
+                  // This might happen if we need to decode the JWT
+                  console.log('Quick Auth succeeded but no user data in context, using mock data');
+                  const mockUser = {
+                    fid: 12345,
+                    username: 'cryptoking',
+                    displayName: 'Crypto King',
+                    pfp: '/crypto-king-profile.png',
+                    wallet: address,
+                  };
+                  setUser(mockUser);
+                }
+              } else {
+                console.log('Quick Auth failed or returned no data, using mock data');
+                const mockUser = {
+                  fid: 12345,
+                  username: 'cryptoking',
+                  displayName: 'Crypto King',
+                  pfp: '/crypto-king-profile.png',
+                  wallet: address,
+                };
+                setUser(mockUser);
+              }
+            } catch (authError) {
+              console.log('Quick Auth error:', authError);
+              // Fallback to mock data
+              const mockUser = {
+                fid: 12345,
+                username: 'cryptoking',
+                displayName: 'Crypto King',
+                pfp: '/crypto-king-profile.png',
+                wallet: address,
+              };
+              setUser(mockUser);
+            }
+          } else {
+            // Fallback to mock data for non-Farcaster environment
+            const mockUser = {
+              fid: 12345,
+              username: 'cryptoking',
+              displayName: 'Crypto King',
+              pfp: '/crypto-king-profile.png',
+              wallet: address,
+            };
+            
+            setUser(mockUser);
+            console.log('Using mock user data (not in Farcaster environment)');
+          }
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        console.error('Error getting user data:', error);
+        // Fallback to mock data on error
+        if (isConnected && address) {
+          const mockUser = {
+            fid: 12345,
+            username: 'cryptoking',
+            displayName: 'Crypto King',
+            pfp: '/crypto-king-profile.png',
+            wallet: address,
+          };
+          setUser(mockUser);
+        }
+      }
+    };
+
+    getUserData();
   }, [isConnected, address]);
 
   const startGame = async () => {
