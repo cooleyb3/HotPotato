@@ -10,7 +10,7 @@ const nextConfig = {
     ];
   },
   images: {
-    domains: ['hotpotato-blond.vercel.app'],
+    domains: ['hotpotatogame.vercel.app'],
   },
 
 };

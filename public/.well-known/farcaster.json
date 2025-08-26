@@ -2,9 +2,9 @@
   "miniapp": {
     "version": "1",
     "name": "Hot Potato",
-                    "iconUrl": "https://hotpotato-blond.vercel.app/icon.svg",
-                "homeUrl": "https://hotpotato-blond.vercel.app",
-                "splashImageUrl": "https://hotpotato-blond.vercel.app/splash.svg",
+    "iconUrl": "https://hotpotatogame.vercel.app/icon.svg",
+    "homeUrl": "https://hotpotatogame.vercel.app",
+    "splashImageUrl": "https://hotpotatogame.vercel.app/splash.svg",
     "splashBackgroundColor": "#FF6B00",
     "subtitle": "Steal the potato, grow the pot",
     "description": "A fun game where players pay to steal a virtual potato. The pot grows with each steal until it pops, awarding the last holder!",
@@ -18,15 +18,15 @@
       "wallet.getEthereumProvider",
       "actions.share"
     ],
-                    "screenshotUrls": [
-                  "https://hotpotato-blond.vercel.app/screenshot1.svg",
-                  "https://hotpotato-blond.vercel.app/screenshot2.svg",
-                  "https://hotpotato-blond.vercel.app/screenshot3.svg"
-                ],
-                "heroImageUrl": "https://hotpotato-blond.vercel.app/hero.svg",
+    "screenshotUrls": [
+      "https://hotpotatogame.vercel.app/screenshot1.svg",
+      "https://hotpotatogame.vercel.app/screenshot2.svg",
+      "https://hotpotatogame.vercel.app/screenshot3.svg"
+    ],
+    "heroImageUrl": "https://hotpotatogame.vercel.app/hero.svg",
     "tagline": "Steal the potato, win the pot!",
     "ogTitle": "Hot Potato Game",
     "ogDescription": "Steal the potato and grow the pot! A fun blockchain game on Base.",
-                    "ogImageUrl": "https://hotpotato-blond.vercel.app/og-image.svg"
+    "ogImageUrl": "https://hotpotatogame.vercel.app/og-image.svg"
   }
 }
