@@ -189,20 +189,25 @@ export const useContract = () => {
               console.log('Attempting Quick Auth to get user data...');
               const authResult = await sdk.actions.signIn({ nonce: 'hot-potato-game' });
               
-              if (authResult && authResult.data) {
+              if (authResult) {
                 console.log('Quick Auth successful:', authResult);
                 
-                // The authResult.data contains the JWT token
+                // The authResult contains the JWT token
                 // We need to decode it to get user information
                 // For now, we'll use the wallet address and try to get user info
                 // In a real implementation, you would decode the JWT on your backend
                 
                 // Try to get user data from context if available
                 let farcasterUser = null;
-                if (sdk.context?.user) {
-                  farcasterUser = sdk.context.user;
-                } else if (sdk.context?.location?.cast?.author) {
-                  farcasterUser = sdk.context.location.cast.author;
+                try {
+                  const context = await sdk.context;
+                  if (context?.user) {
+                    farcasterUser = context.user;
+                  } else if (context?.location && 'cast' in context.location && context.location.cast?.author) {
+                    farcasterUser = context.location.cast.author;
+                  }
+                } catch (contextError) {
+                  console.log('Error accessing SDK context:', contextError);
                 }
                 
                 if (farcasterUser) {
