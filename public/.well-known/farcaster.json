@@ -15,8 +15,7 @@
     ],
     "requiredCapabilities": [
       "actions.signIn",
-      "wallet.getEthereumProvider",
-      "actions.share"
+      "wallet.getEthereumProvider"
     ],
     "screenshotUrls": [
       "https://hotpotatogame.vercel.app/screenshot1.svg",
