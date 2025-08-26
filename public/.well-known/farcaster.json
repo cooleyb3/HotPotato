@@ -28,5 +28,10 @@
     "ogTitle": "Hot Potato Game",
     "ogDescription": "Steal the potato and grow the pot! A fun blockchain game on Base.",
     "ogImageUrl": "https://hotpotatogame.vercel.app/og-image.svg"
+  },
+  "accountAssociation": {
+    "header": "eyJmaWQiOjEwNzU5ODYsInR5cGUiOiJhdXRoIiwia2V5IjoiMHhkZTM2NWE3M0Y2REY4NmZGNDE2MTA2QWE4MGYwN2RBZGNFY0FlOTE2In0",
+    "payload": "eyJkb21haW4iOiJob3Rwb3RhdG9nYW1lLnZlcmNlbC5hcHAifQ",
+    "signature": "wGkbN8RItL3nSSnIO5zjpg+WAN/X0l+Yl2iqS0l1zW87Cal5Zicwcoz7wgUqL4HQE5TAwmUh+1OTAbtA3SoYzBw="
   }
 }
