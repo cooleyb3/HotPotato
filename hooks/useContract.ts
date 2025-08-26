@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAccount, useConnect, useReadContract, useWriteContract, useSwitchChain } from 'wagmi';
+import { useAccount, useConnect, useReadContract, useWriteContract, useSwitchChain, useBalance } from 'wagmi';
 import { sdk } from '@farcaster/miniapp-sdk';
 import { CONTRACT_CONFIG, CONTRACT_ABI, CURRENT_NETWORK } from '@/lib/contract-config';
 
@@ -37,13 +37,19 @@ export const useContract = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Contract configuration
+  const contractConfig = CONTRACT_CONFIG[CURRENT_NETWORK as keyof typeof CONTRACT_CONFIG];
+  
   // Use Wagmi hooks for wallet connection
   const { isConnected, address, chainId } = useAccount();
   const { connect, connectors } = useConnect();
   const { switchChain } = useSwitchChain();
-
-  // Contract configuration
-  const contractConfig = CONTRACT_CONFIG[CURRENT_NETWORK as keyof typeof CONTRACT_CONFIG];
+  
+  // Get user's ETH balance
+  const { data: ethBalance } = useBalance({
+    address,
+    chainId: contractConfig.chainId,
+  });
   const contractAddress = contractConfig.contractAddress as `0x${string}`;
 
   // Contract read operations
@@ -112,6 +118,23 @@ export const useContract = () => {
         return false;
       }
     }
+    return true;
+  };
+
+  // Helper function to check ETH balance
+  const checkEthBalance = () => {
+    if (!ethBalance) {
+      console.log('ETH balance not available');
+      return false;
+    }
+    
+    // Check if balance is less than 0.001 ETH (minimum for gas)
+    const minBalance = BigInt(1000000000000000); // 0.001 ETH in wei
+    if (ethBalance.value < minBalance) {
+      console.log('Insufficient ETH balance for gas fees');
+      return false;
+    }
+    
     return true;
   };
 
@@ -201,7 +224,18 @@ export const useContract = () => {
     if (writeError) {
       console.error('Write contract error:', writeError);
       setGameState(prev => ({ ...prev, isLoading: false }));
-      alert(`Transaction failed: ${writeError.message}`);
+      
+      // Provide more specific error messages
+      let errorMessage = writeError.message;
+      if (writeError.message.includes('insufficient funds')) {
+        errorMessage = 'Insufficient ETH balance for gas fees. Please add more ETH to your wallet.';
+      } else if (writeError.message.includes('user rejected')) {
+        errorMessage = 'Transaction was rejected by user.';
+      } else if (writeError.message.includes('chain')) {
+        errorMessage = 'Network mismatch. Please ensure you are on Base Sepolia network.';
+      }
+      
+      alert(`Transaction failed: ${errorMessage}`);
     }
   }, [writeError]);
 
@@ -360,6 +394,7 @@ export const useContract = () => {
     try {
       if (!isConnected || !address) {
         console.log('Wallet not connected');
+        alert('Please connect your wallet first');
         return;
       }
 
@@ -370,11 +405,19 @@ export const useContract = () => {
         return;
       }
 
+      // Check ETH balance
+      if (!checkEthBalance()) {
+        alert(`Insufficient ETH balance for gas fees. Current balance: ${ethBalance ? `${Number(ethBalance.value) / 1e18} ETH` : 'Unknown'}. You need at least 0.001 ETH for gas fees.`);
+        setGameState(prev => ({ ...prev, isLoading: false }));
+        return;
+      }
+
       setGameState(prev => ({ ...prev, isLoading: true }));
       
       console.log('Starting game with holder:', address);
       console.log('Contract address:', contractAddress);
       console.log('Current network:', chainId);
+      console.log('ETH balance:', ethBalance ? `${Number(ethBalance.value) / 1e18} ETH` : 'Unknown');
       
       // Call contract to start game
       writeContract({
@@ -386,6 +429,7 @@ export const useContract = () => {
       
     } catch (error) {
       console.error('Error starting game:', error);
+      alert(`Failed to start game: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setGameState(prev => ({ ...prev, isLoading: false }));
     }
   };
@@ -394,6 +438,7 @@ export const useContract = () => {
     try {
       if (!isConnected || !address) {
         console.log('Wallet not connected');
+        alert('Please connect your wallet first');
         return;
       }
 
@@ -404,14 +449,23 @@ export const useContract = () => {
         return;
       }
 
-      setGameState(prev => ({ ...prev, isLoading: true }));
-
       // Get required ETH amount for steal
       const requiredEth = await getRequiredEthForSteal();
+      
+      // Check if user has enough ETH for steal fee + gas
+      const totalRequired = requiredEth + BigInt(1000000000000000); // steal fee + 0.001 ETH for gas
+      if (ethBalance && ethBalance.value < totalRequired) {
+        alert(`Insufficient ETH balance. You need ${Number(totalRequired) / 1e18} ETH (${Number(requiredEth) / 1e18} for steal fee + gas). Current balance: ${Number(ethBalance.value) / 1e18} ETH`);
+        setGameState(prev => ({ ...prev, isLoading: false }));
+        return;
+      }
+
+      setGameState(prev => ({ ...prev, isLoading: true }));
       
       console.log('Stealing potato with payment:', requiredEth.toString());
       console.log('Contract address:', contractAddress);
       console.log('Current network:', chainId);
+      console.log('ETH balance:', ethBalance ? `${Number(ethBalance.value) / 1e18} ETH` : 'Unknown');
       
       // Call contract to steal potato
       writeContract({
@@ -428,6 +482,7 @@ export const useContract = () => {
 
     } catch (error) {
       console.error('Error stealing potato:', error);
+      alert(`Failed to steal potato: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setGameState(prev => ({ ...prev, isLoading: false }));
     }
   };
