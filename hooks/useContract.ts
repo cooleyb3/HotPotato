@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useAccount, useConnect, useReadContract, useWriteContract } from 'wagmi';
 import { sdk } from '@farcaster/miniapp-sdk';
+import { CONTRACT_CONFIG, CONTRACT_ABI, CURRENT_NETWORK } from '@/lib/contract-config';
 
 interface GameState {
   currentHolder: string;
@@ -32,10 +34,65 @@ export const useContract = () => {
     isLoading: false,
   });
 
-  const [isConnected, setIsConnected] = useState(false);
-  const [account, setAccount] = useState<string>('');
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Use Wagmi hooks for wallet connection
+  const { isConnected, address, chainId } = useAccount();
+  const { connect, connectors } = useConnect();
+
+  // Contract configuration
+  const contractConfig = CONTRACT_CONFIG[CURRENT_NETWORK as keyof typeof CONTRACT_CONFIG];
+  const contractAddress = contractConfig.contractAddress as `0x${string}`;
+
+  // Contract read operations
+  const { data: currentHolder } = useReadContract({
+    address: contractAddress,
+    abi: CONTRACT_ABI,
+    functionName: 'currentHolder',
+  });
+
+  const { data: potSize } = useReadContract({
+    address: contractAddress,
+    abi: CONTRACT_ABI,
+    functionName: 'potSize',
+  });
+
+  const { data: stealCount } = useReadContract({
+    address: contractAddress,
+    abi: CONTRACT_ABI,
+    functionName: 'stealCount',
+  });
+
+  const { data: potSizeUsd } = useReadContract({
+    address: contractAddress,
+    abi: CONTRACT_ABI,
+    functionName: 'getPotSizeUsd',
+  });
+
+  const { data: stealFeeUsd } = useReadContract({
+    address: contractAddress,
+    abi: CONTRACT_ABI,
+    functionName: 'getStealFeeUsd',
+  });
+
+  const { data: requiredEthForSteal } = useReadContract({
+    address: contractAddress,
+    abi: CONTRACT_ABI,
+    functionName: 'getRequiredEthForSteal',
+  });
+
+  // Contract write operations
+  const { writeContract, isPending: isWritePending } = useWriteContract();
+
+  // Helper function to get required ETH for steal
+  const getRequiredEthForSteal = async () => {
+    if (requiredEthForSteal) {
+      return requiredEthForSteal;
+    }
+    // Fallback to calculating from steal fee if needed
+    return BigInt(0);
+  };
 
   // Initialize Farcaster SDK
   useEffect(() => {
@@ -50,73 +107,111 @@ export const useContract = () => {
           // Call ready() to hide splash screen and show our app
           await sdk.actions.ready();
           
-          // Try to authenticate user
-          await connectWallet();
+          // Auto-connect to wallet if available
+          if (connectors.length > 0 && !isConnected) {
+            try {
+              await connect({ connector: connectors[0] });
+            } catch (error) {
+              console.log('Auto-connect failed:', error);
+            }
+          }
         } else {
           console.log('Running in regular web environment');
-          setIsLoading(false);
         }
       } catch (error) {
         console.error('Error initializing Farcaster SDK:', error);
+      } finally {
         setIsLoading(false);
       }
     };
 
     initializeSDK();
-  }, []);
+  }, [connectors, isConnected, connect]);
 
-  const connectWallet = async () => {
-    try {
-      setIsLoading(true);
-      
-      // For now, use mock authentication until we properly integrate Farcaster SDK
+  // Update game state when contract data changes
+  useEffect(() => {
+    if (currentHolder !== undefined) {
+      setGameState(prev => ({
+        ...prev,
+        currentHolder: currentHolder || '0x0000000000000000000000000000000000000000',
+        isGameActive: currentHolder !== '0x0000000000000000000000000000000000000000',
+      }));
+    }
+  }, [currentHolder]);
+
+  useEffect(() => {
+    if (potSize !== undefined) {
+      setGameState(prev => ({
+        ...prev,
+        potSize: potSize?.toString() || '0',
+      }));
+    }
+  }, [potSize]);
+
+  useEffect(() => {
+    if (stealCount !== undefined) {
+      setGameState(prev => ({
+        ...prev,
+        stealCount: Number(stealCount) || 0,
+      }));
+    }
+  }, [stealCount]);
+
+  useEffect(() => {
+    if (potSizeUsd !== undefined) {
+      setGameState(prev => ({
+        ...prev,
+        potSizeUsd: potSizeUsd ? (Number(potSizeUsd) / 100).toFixed(2) : '0.00',
+      }));
+    }
+  }, [potSizeUsd]);
+
+  useEffect(() => {
+    if (stealFeeUsd !== undefined) {
+      setGameState(prev => ({
+        ...prev,
+        stealFeeUsd: stealFeeUsd?.toString() || '33',
+      }));
+    }
+  }, [stealFeeUsd]);
+
+  // Update user when wallet connects
+  useEffect(() => {
+    if (isConnected && address) {
+      // For now, use mock user data until we get FID from Farcaster
       const mockUser = {
         fid: 12345,
         username: 'cryptoking',
         displayName: 'Crypto King',
         pfp: '/crypto-king-profile.png',
-        wallet: '0xcece3a139cd463da522cc7683bc781ca574e57bb',
+        wallet: address,
       };
       
       setUser(mockUser);
-      setAccount(mockUser.wallet);
-      setIsConnected(true);
-      
-      console.log('Mock user authenticated:', mockUser);
-      
-      // Try to get wallet provider (this should work)
-      try {
-        const wallet = await sdk.wallet.getEthereumProvider();
-        if (wallet) {
-          console.log('Wallet provider available');
-        }
-      } catch (walletError) {
-        console.log('Wallet provider not available:', walletError);
-      }
-      
-    } catch (error) {
-      console.error('Error connecting wallet:', error);
-    } finally {
-      setIsLoading(false);
+      console.log('Wallet connected:', address);
+    } else {
+      setUser(null);
     }
-  };
+  }, [isConnected, address]);
 
   const startGame = async () => {
     try {
+      if (!isConnected || !address) {
+        console.log('Wallet not connected');
+        return;
+      }
+
       setGameState(prev => ({ ...prev, isLoading: true }));
       
-      // Reset game state
-      setGameState(prev => ({
-        ...prev,
-        currentHolder: account,
-        potSize: '0',
-        potSizeUsd: '0.00',
-        stealCount: 0,
-        isGameActive: true,
-        isLoading: false,
-      }));
+      // Call contract to start game
+      writeContract({
+        address: contractAddress,
+        abi: CONTRACT_ABI,
+        functionName: 'startGame',
+        args: [address],
+      });
       
-      console.log('Game started with holder:', account);
+      console.log('Starting game with holder:', address);
     } catch (error) {
       console.error('Error starting game:', error);
       setGameState(prev => ({ ...prev, isLoading: false }));
@@ -125,30 +220,25 @@ export const useContract = () => {
 
   const stealPotato = async (message?: string) => {
     try {
-      if (!isConnected) {
-        await connectWallet();
+      if (!isConnected || !address) {
+        console.log('Wallet not connected');
         return;
       }
 
       setGameState(prev => ({ ...prev, isLoading: true }));
 
-      // Calculate new pot size (mock calculation for now)
-      const currentPotSizeUsd = parseFloat(gameState.potSizeUsd);
-      const stealFeeUsd = parseFloat(gameState.stealFeeUsd) / 100; // Convert cents to dollars
-      const newPotSizeUsd = currentPotSizeUsd + stealFeeUsd;
-      const newStealCount = gameState.stealCount + 1;
+      // Get required ETH amount for steal
+      const requiredEth = await getRequiredEthForSteal();
+      
+      // Call contract to steal potato
+      writeContract({
+        address: contractAddress,
+        abi: CONTRACT_ABI,
+        functionName: 'stealPotato',
+        value: requiredEth,
+      });
 
-      // Update game state
-      setGameState(prev => ({
-        ...prev,
-        currentHolder: account,
-        potSize: (newPotSizeUsd / 2000).toString(), // Mock ETH conversion
-        potSizeUsd: newPotSizeUsd.toFixed(2),
-        stealCount: newStealCount,
-        isLoading: false,
-      }));
-
-      console.log('Potato stolen! New pot size:', newPotSizeUsd);
+      console.log('Stealing potato with payment:', requiredEth.toString());
 
       // TODO: Implement sharing functionality when Farcaster SDK supports it
       if (message) {
@@ -163,20 +253,22 @@ export const useContract = () => {
 
   const popPotato = async () => {
     try {
+      if (!isConnected || !address) {
+        console.log('Wallet not connected');
+        return;
+      }
+
       setGameState(prev => ({ ...prev, isLoading: true }));
       
-      // Reset game state
-      setGameState(prev => ({
-        ...prev,
-        currentHolder: '0x0000000000000000000000000000000000000000',
-        potSize: '0',
-        potSizeUsd: '0.00',
-        stealCount: 0,
-        isGameActive: false,
-        isLoading: false,
-      }));
+      // Call contract to pop potato (only owner can do this)
+      writeContract({
+        address: contractAddress,
+        abi: CONTRACT_ABI,
+        functionName: 'popPotato',
+        args: [currentHolder || address],
+      });
 
-      console.log('Potato popped! Winner:', account);
+      console.log('Popping potato for winner:', currentHolder || address);
     } catch (error) {
       console.error('Error popping potato:', error);
       setGameState(prev => ({ ...prev, isLoading: false }));
@@ -195,13 +287,14 @@ export const useContract = () => {
   return {
     gameState,
     isConnected,
-    account,
+    account: address,
     user,
-    isLoading,
-    connectWallet,
+    isLoading: isLoading || isWritePending,
     startGame,
     stealPotato,
     popPotato,
     simulateOtherPlayerSteal,
+    contractAddress,
+    chainId,
   };
 };

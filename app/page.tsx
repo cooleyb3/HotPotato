@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import Link from "next/link"
 import { useContract } from "@/hooks/useContract"
+import { useConnect } from "wagmi"
 
 export default function HotPotatoGame() {
   const [showAbout, setShowAbout] = useState(false)
@@ -17,9 +18,13 @@ export default function HotPotatoGame() {
   const [customMessage, setCustomMessage] = useState("")
   const [selectedMessage, setSelectedMessage] = useState("")
   const [gameHistory, setGameHistory] = useState<any[]>([])
+  const [showDevWarning, setShowDevWarning] = useState(true)
 
   // Contract integration
-  const { gameState, isConnected, account, connectWallet, startGame, stealPotato, popPotato, simulateOtherPlayerSteal } = useContract()
+  const { gameState, isConnected, account, user, startGame, stealPotato, popPotato, simulateOtherPlayerSteal, contractAddress, chainId, isLoading } = useContract()
+  
+  // Wallet connection
+  const { connect, connectors, isPending: isConnecting } = useConnect()
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -70,7 +75,9 @@ export default function HotPotatoGame() {
 
   const handleSteal = async () => {
     if (!isConnected) {
-      await connectWallet()
+      if (connectors.length > 0) {
+        await connect({ connector: connectors[0] })
+      }
       return
     }
     
@@ -196,6 +203,27 @@ export default function HotPotatoGame() {
         isFever ? "animate-pulse" : ""
       }`}
     >
+      {/* Development Warning Popup */}
+      {showDevWarning && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-black border border-[#FF6B00] rounded-lg p-6 max-w-sm w-full">
+            <div className="text-center">
+              <div className="text-[#FF6B00] text-2xl mb-4">⚠️</div>
+              <h3 className="font-mono text-lg text-[#FF6B00] mb-2">DEVELOPMENT MODE</h3>
+              <p className="font-mono text-sm text-[#F5F5F5] mb-6 leading-relaxed">
+                This app is still in development. Smart contract not yet deployed to mainnet. All transactions are simulated.
+              </p>
+              <Button
+                onClick={() => setShowDevWarning(false)}
+                className="w-full bg-[#FF6B00] hover:bg-[#FF6B00]/80 text-black font-mono text-sm"
+              >
+                UNDERSTOOD
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+      
       <div className="max-w-md mx-auto">
         {showStealPopup && (
           <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-[#FF6B00] text-black px-4 py-2 rounded font-mono text-sm animate-bounce">
@@ -299,30 +327,7 @@ export default function HotPotatoGame() {
           </div>
         </div>
 
-        {/* Wallet Connection */}
-        {!isConnected && (
-          <Card className="bg-black border-[#F5F5F5]/30 p-3 sm:p-4 mb-4 sm:mb-6 mx-1">
-            <div className="text-center">
-              <div className="text-[#FF6B00] font-mono text-sm mb-2">CONNECT WALLET</div>
-              <Button
-                onClick={connectWallet}
-                className="bg-[#FF6B00] hover:bg-[#FF6B00]/80 text-black font-mono text-xs"
-              >
-                Connect Wallet
-              </Button>
-            </div>
-          </Card>
-        )}
 
-        {/* Connected Account */}
-        {isConnected && (
-          <Card className="bg-black border-[#F5F5F5]/30 p-3 sm:p-4 mb-4 sm:mb-6 mx-1">
-            <div className="text-center">
-              <div className="text-[#FF6B00] font-mono text-xs mb-1">CONNECTED</div>
-              <div className="font-mono text-xs text-[#F5F5F5]/70 truncate">{account}</div>
-            </div>
-          </Card>
-        )}
 
         {/* Potato Info */}
         <Card className="bg-black border-[#F5F5F5]/30 p-3 sm:p-4 mb-4 sm:mb-6 mx-1">
@@ -400,14 +405,80 @@ export default function HotPotatoGame() {
           </Card>
         )}
 
-        {/* Connect Wallet Button */}
-        {!isConnected && (
-          <Button
-            onClick={connectWallet}
-            className="w-full py-4 mb-6 sm:mb-8 mx-1 font-mono text-sm bg-[#FF6B00] hover:bg-[#FF6B00]/80 text-black"
-          >
-            <span className="text-sm">CONNECT WALLET TO PLAY</span>
-          </Button>
+        {/* Wallet Status Section */}
+        <Card className="bg-black border-[#F5F5F5]/30 p-3 sm:p-4 mb-6 sm:mb-8 mx-1">
+          <h3 className="text-[#FF6B00] font-mono text-xs mb-3">WALLET STATUS</h3>
+          
+          {!isConnected ? (
+            <div className="text-center">
+              <div className="text-[#F5F5F5]/70 font-mono text-xs mb-3">
+                Connect your wallet to play the Hot Potato game
+              </div>
+              <Button
+                onClick={() => {
+                  if (connectors.length > 0) {
+                    connect({ connector: connectors[0] });
+                  }
+                }}
+                className="w-full py-3 font-mono text-sm bg-[#FF6B00] hover:bg-[#FF6B00]/80 text-black"
+                disabled={connectors.length === 0 || isConnecting}
+              >
+                <span className="text-sm">
+                  {isConnecting ? 'CONNECTING...' : 
+                   connectors.length === 0 ? 'NO WALLET AVAILABLE' : 'CONNECT WALLET TO PLAY'}
+                </span>
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-2 text-xs font-mono">
+              <div className="flex justify-between items-center">
+                <span className="text-[#F5F5F5]/70">Status:</span>
+                <span className="text-[#00FF84]">
+                  {isLoading ? '● Loading...' : '● Connected'}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-[#F5F5F5]/70">Address:</span>
+                <span className="text-[#F5F5F5]/90 font-mono">
+                  {account?.slice(0, 6)}...{account?.slice(-4)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-[#F5F5F5]/70">Network:</span>
+                <span className="text-[#F5F5F5]/90">
+                  {chainId === 84532 ? 'Base Sepolia' : chainId === 8453 ? 'Base' : `Chain ID: ${chainId}`}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-[#F5F5F5]/70">Contract:</span>
+                <span className="text-[#F5F5F5]/90 font-mono text-[10px]">
+                  {contractAddress?.slice(0, 6)}...{contractAddress?.slice(-4)}
+                </span>
+              </div>
+            </div>
+          )}
+        </Card>
+
+        {/* User Profile Section */}
+        {isConnected && user && (
+          <Card className="bg-black border-[#F5F5F5]/30 p-3 sm:p-4 mb-6 sm:mb-8 mx-1">
+            <h3 className="text-[#FF6B00] font-mono text-xs mb-3">PLAYER PROFILE</h3>
+            <div className="flex items-center space-x-3">
+              <img
+                src={user.pfp}
+                alt={user.displayName}
+                className="w-8 h-8 rounded-full object-cover"
+              />
+              <div className="flex-1 min-w-0">
+                <div className="text-[#F5F5F5]/90 font-mono text-xs font-semibold truncate">
+                  {user.displayName}
+                </div>
+                <div className="text-[#F5F5F5]/70 font-mono text-[10px]">
+                  @{user.username} • FID: {user.fid}
+                </div>
+              </div>
+            </div>
+          </Card>
         )}
 
         <Card className="bg-black border-[#F5F5F5]/30 p-3 sm:p-4 mb-6 sm:mb-8 mx-1">
