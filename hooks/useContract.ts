@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAccount, useConnect, useReadContract, useWriteContract } from 'wagmi';
+import { useAccount, useConnect, useReadContract, useWriteContract, useSwitchChain } from 'wagmi';
 import { sdk } from '@farcaster/miniapp-sdk';
 import { CONTRACT_CONFIG, CONTRACT_ABI, CURRENT_NETWORK } from '@/lib/contract-config';
 
@@ -40,6 +40,7 @@ export const useContract = () => {
   // Use Wagmi hooks for wallet connection
   const { isConnected, address, chainId } = useAccount();
   const { connect, connectors } = useConnect();
+  const { switchChain } = useSwitchChain();
 
   // Contract configuration
   const contractConfig = CONTRACT_CONFIG[CURRENT_NETWORK as keyof typeof CONTRACT_CONFIG];
@@ -83,7 +84,7 @@ export const useContract = () => {
   });
 
   // Contract write operations
-  const { writeContract, isPending: isWritePending } = useWriteContract();
+  const { writeContract, isPending: isWritePending, data: writeData, error: writeError } = useWriteContract();
 
   // Helper function to get required ETH for steal
   const getRequiredEthForSteal = async () => {
@@ -92,6 +93,26 @@ export const useContract = () => {
     }
     // Fallback to calculating from steal fee if needed
     return BigInt(0);
+  };
+
+  // Helper function to check and switch to correct network
+  const ensureCorrectNetwork = async () => {
+    const expectedChainId = contractConfig.chainId;
+    if (chainId !== expectedChainId) {
+      console.log(`Network mismatch: Expected ${expectedChainId} (Base Sepolia), got ${chainId}`);
+      
+      // Try to switch to the correct network
+      try {
+        await switchChain({ chainId: expectedChainId });
+        console.log('Switched to Base Sepolia network');
+        return true;
+      } catch (switchError) {
+        console.error('Failed to switch network:', switchError);
+        alert(`Please switch to Base Sepolia network manually. Current network: ${chainId === 8453 ? 'Base Mainnet' : 'Unknown'}`);
+        return false;
+      }
+    }
+    return true;
   };
 
   // Initialize Farcaster SDK
@@ -174,6 +195,23 @@ export const useContract = () => {
       }));
     }
   }, [stealFeeUsd]);
+
+  // Monitor write contract errors
+  useEffect(() => {
+    if (writeError) {
+      console.error('Write contract error:', writeError);
+      setGameState(prev => ({ ...prev, isLoading: false }));
+      alert(`Transaction failed: ${writeError.message}`);
+    }
+  }, [writeError]);
+
+  // Monitor write contract success
+  useEffect(() => {
+    if (writeData) {
+      console.log('Transaction successful:', writeData);
+      setGameState(prev => ({ ...prev, isLoading: false }));
+    }
+  }, [writeData]);
 
   // Update user when wallet connects
   useEffect(() => {
@@ -325,7 +363,18 @@ export const useContract = () => {
         return;
       }
 
+      // Check if we're on the correct network
+      const networkOk = await ensureCorrectNetwork();
+      if (!networkOk) {
+        setGameState(prev => ({ ...prev, isLoading: false }));
+        return;
+      }
+
       setGameState(prev => ({ ...prev, isLoading: true }));
+      
+      console.log('Starting game with holder:', address);
+      console.log('Contract address:', contractAddress);
+      console.log('Current network:', chainId);
       
       // Call contract to start game
       writeContract({
@@ -335,7 +384,6 @@ export const useContract = () => {
         args: [address],
       });
       
-      console.log('Starting game with holder:', address);
     } catch (error) {
       console.error('Error starting game:', error);
       setGameState(prev => ({ ...prev, isLoading: false }));
@@ -349,10 +397,21 @@ export const useContract = () => {
         return;
       }
 
+      // Check if we're on the correct network
+      const networkOk = await ensureCorrectNetwork();
+      if (!networkOk) {
+        setGameState(prev => ({ ...prev, isLoading: false }));
+        return;
+      }
+
       setGameState(prev => ({ ...prev, isLoading: true }));
 
       // Get required ETH amount for steal
       const requiredEth = await getRequiredEthForSteal();
+      
+      console.log('Stealing potato with payment:', requiredEth.toString());
+      console.log('Contract address:', contractAddress);
+      console.log('Current network:', chainId);
       
       // Call contract to steal potato
       writeContract({
@@ -361,8 +420,6 @@ export const useContract = () => {
         functionName: 'stealPotato',
         value: requiredEth,
       });
-
-      console.log('Stealing potato with payment:', requiredEth.toString());
 
       // TODO: Implement sharing functionality when Farcaster SDK supports it
       if (message) {
