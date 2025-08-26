@@ -1,0 +1,36 @@
+{
+  "miniapp": {
+    "version": "1",
+    "name": "Hot Potato",
+    "iconUrl": "https://hotpotatogame.vercel.app/icon.svg",
+    "homeUrl": "https://hotpotatogame.vercel.app",
+    "splashImageUrl": "https://hotpotatogame.vercel.app/splash.svg",
+    "splashBackgroundColor": "#FF6B00",
+    "subtitle": "Steal the potato, grow the pot",
+    "description": "A fun game where players pay to steal a virtual potato. The pot grows with each steal until it pops, awarding the last holder!",
+    "primaryCategory": "games",
+    "tags": ["game", "potato", "steal", "base", "ethereum"],
+    "requiredChains": [
+      "eip155:8453"
+    ],
+    "requiredCapabilities": [
+      "actions.signIn",
+      "wallet.getEthereumProvider"
+    ],
+    "screenshotUrls": [
+      "https://hotpotatogame.vercel.app/screenshot1.svg",
+      "https://hotpotatogame.vercel.app/screenshot2.svg",
+      "https://hotpotatogame.vercel.app/screenshot3.svg"
+    ],
+    "heroImageUrl": "https://hotpotatogame.vercel.app/hero.svg",
+    "tagline": "Steal the potato, win the pot!",
+    "ogTitle": "Hot Potato Game",
+    "ogDescription": "Steal the potato and grow the pot! A fun blockchain game on Base.",
+    "ogImageUrl": "https://hotpotatogame.vercel.app/og-image.svg"
+  },
+  "accountAssociation": {
+    "header": "eyJmaWQiOjEwNzU5ODYsInR5cGUiOiJhdXRoIiwia2V5IjoiMHhkZTM2NWE3M0Y2REY4NmZGNDE2MTA2QWE4MGYwN2RBZGNFY0FlOTE2In0",
+    "payload": "eyJkb21haW4iOiJob3Rwb3RhdG9nYW1lLnZlcmNlbC5hcHAifQ",
+    "signature": "wGkbN8RItL3nSSnIO5zjpg+WAN/X0l+Yl2iqS0l1zW87Cal5Zicwcoz7wgUqL4HQE5TAwmUh+1OTAbtA3SoYzBw="
+  }
+}

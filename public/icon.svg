@@ -1,0 +1,35 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a1a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2d2d2d;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="potato" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6B00;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF8533;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="url(#bg)"/>
+  
+  <!-- Potato shape -->
+  <ellipse cx="512" cy="512" rx="300" ry="200" fill="url(#potato)" stroke="#FF4500" stroke-width="8"/>
+  
+  <!-- Potato eyes -->
+  <circle cx="450" cy="480" r="25" fill="#1a1a1a"/>
+  <circle cx="574" cy="480" r="25" fill="#1a1a1a"/>
+  <circle cx="450" cy="480" r="12" fill="#FF6B00"/>
+  <circle cx="574" cy="480" r="12" fill="#FF6B00"/>
+  
+  <!-- Potato mouth -->
+  <path d="M 480 540 Q 512 580 544 540" stroke="#1a1a1a" stroke-width="6" fill="none"/>
+  
+  <!-- Steam lines -->
+  <path d="M 512 300 Q 480 250 460 280" stroke="#FF6B00" stroke-width="4" fill="none" opacity="0.7"/>
+  <path d="M 512 300 Q 544 250 564 280" stroke="#FF6B00" stroke-width="4" fill="none" opacity="0.7"/>
+  
+  <!-- Text -->
+  <text x="512" y="720" text-anchor="middle" font-family="monospace" font-size="48" font-weight="bold" fill="#FF6B00">HOT POTATO</text>
+  <text x="512" y="760" text-anchor="middle" font-family="monospace" font-size="24" fill="#ffffff">GAME</text>
+</svg>

@@ -1,0 +1,59 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0a0a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a1a1a;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="potato" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6B00;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF8533;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="card" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e1e1e;stop-opacity:0.9" />
+      <stop offset="100%" style="stop-color:#2d2d2d;stop-opacity:0.9" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  
+  <!-- Background Pattern -->
+  <circle cx="150" cy="150" r="100" fill="#FF6B00" opacity="0.1"/>
+  <circle cx="1050" cy="480" r="150" fill="#FF6B00" opacity="0.1"/>
+  <circle cx="900" cy="100" r="80" fill="#FF6B00" opacity="0.1"/>
+  
+  <!-- Main Content Card -->
+  <rect x="100" y="100" width="1000" height="430" rx="20" fill="url(#card)" stroke="#FF6B00" stroke-width="3"/>
+  
+  <!-- Potato -->
+  <ellipse cx="400" cy="315" rx="120" ry="80" fill="url(#potato)" stroke="#FF4500" stroke-width="6"/>
+  <circle cx="360" cy="295" r="20" fill="#1a1a1a"/>
+  <circle cx="440" cy="295" r="20" fill="#1a1a1a"/>
+  <circle cx="360" cy="295" r="10" fill="#FF6B00"/>
+  <circle cx="440" cy="295" r="10" fill="#FF6B00"/>
+  <path d="M 370 320 Q 400 340 430 320" stroke="#1a1a1a" stroke-width="4" fill="none"/>
+  
+  <!-- Steam -->
+  <path d="M 400 235 Q 360 185 320 215" stroke="#FF6B00" stroke-width="4" fill="none" opacity="0.8"/>
+  <path d="M 400 235 Q 440 185 480 215" stroke="#FF6B00" stroke-width="4" fill="none" opacity="0.8"/>
+  
+  <!-- Text Content -->
+  <text x="600" y="200" font-family="monospace" font-size="64" font-weight="bold" fill="#FF6B00">HOT POTATO</text>
+  <text x="600" y="250" font-family="monospace" font-size="28" fill="#ffffff">Steal the potato, grow the pot!</text>
+  <text x="600" y="290" font-family="monospace" font-size="20" fill="#888">A fun blockchain game on Base</text>
+  
+  <!-- Game Stats -->
+  <text x="600" y="350" font-family="monospace" font-size="24" fill="#ffffff">🎮 Play with friends</text>
+  <text x="600" y="380" font-family="monospace" font-size="24" fill="#ffffff">💰 Win real prizes</text>
+  <text x="600" y="410" font-family="monospace" font-size="24" fill="#ffffff">🔥 The potato gets hotter!</text>
+  
+  <!-- Call to Action -->
+  <rect x="500" y="450" width="200" height="50" rx="25" fill="#FF6B00"/>
+  <text x="600" y="485" text-anchor="middle" font-family="monospace" font-size="20" font-weight="bold" fill="#ffffff">PLAY NOW</text>
+  
+  <!-- Decorative Elements -->
+  <text x="150" y="80" font-family="monospace" font-size="20" fill="#FF6B00" opacity="0.7">🔥</text>
+  <text x="1050" y="120" font-family="monospace" font-size="20" fill="#FF6B00" opacity="0.7">🥔</text>
+  <text x="100" y="550" font-family="monospace" font-size="20" fill="#FF6B00" opacity="0.7">⚡</text>
+  <text x="1100" y="550" font-family="monospace" font-size="20" fill="#FF6B00" opacity="0.7">🌶️</text>
+</svg>

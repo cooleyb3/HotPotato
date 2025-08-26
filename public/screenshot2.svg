@@ -1,0 +1,110 @@
+<svg width="1284" height="2778" viewBox="0 0 1284 2778" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0a0a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a1a1a;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="card" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e1e1e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2d2d2d;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFA500;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="silver" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#C0C0C0;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#A0A0A0;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="bronze" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#CD7F32;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#B8860B;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1284" height="2778" fill="url(#bg)"/>
+  
+  <!-- Header -->
+  <rect x="0" y="0" width="1284" height="120" fill="#1a1a1a"/>
+  <text x="642" y="70" text-anchor="middle" font-family="monospace" font-size="32" font-weight="bold" fill="#FF6B00">HOT POTATO</text>
+  
+  <!-- Title -->
+  <text x="642" y="200" text-anchor="middle" font-family="monospace" font-size="48" font-weight="bold" fill="#FF6B00">LEADERBOARD</text>
+  
+  <!-- 1st Place -->
+  <rect x="142" y="250" width="1000" height="200" rx="20" fill="url(#card)" stroke="url(#gold)" stroke-width="4"/>
+  <text x="642" y="290" text-anchor="middle" font-family="monospace" font-size="36" font-weight="bold" fill="url(#gold)">🥇 1ST PLACE</text>
+  <text x="642" y="330" text-anchor="middle" font-family="monospace" font-size="28" fill="#ffffff">@potato_king</text>
+  <text x="642" y="370" text-anchor="middle" font-family="monospace" font-size="24" fill="#FF6B00">$156.78 won</text>
+  <text x="642" y="400" text-anchor="middle" font-family="monospace" font-size="20" fill="#888">42 steals • 3 wins</text>
+  
+  <!-- 2nd Place -->
+  <rect x="142" y="480" width="1000" height="180" rx="20" fill="url(#card)" stroke="url(#silver)" stroke-width="3"/>
+  <text x="642" y="520" text-anchor="middle" font-family="monospace" font-size="32" font-weight="bold" fill="url(#silver)">🥈 2ND PLACE</text>
+  <text x="642" y="555" text-anchor="middle" font-family="monospace" font-size="24" fill="#ffffff">@spud_master</text>
+  <text x="642" y="585" text-anchor="middle" font-family="monospace" font-size="20" fill="#FF6B00">$89.45 won</text>
+  <text x="642" y="610" text-anchor="middle" font-family="monospace" font-size="16" fill="#888">28 steals • 2 wins</text>
+  
+  <!-- 3rd Place -->
+  <rect x="142" y="690" width="1000" height="160" rx="20" fill="url(#card)" stroke="url(#bronze)" stroke-width="3"/>
+  <text x="642" y="725" text-anchor="middle" font-family="monospace" font-size="28" font-weight="bold" fill="url(#bronze)">🥉 3RD PLACE</text>
+  <text x="642" y="755" text-anchor="middle" font-family="monospace" font-size="20" fill="#ffffff">@hot_potato_lover</text>
+  <text x="642" y="780" text-anchor="middle" font-family="monospace" font-size="18" fill="#FF6B00">$67.23 won</text>
+  <text x="642" y="800" text-anchor="middle" font-family="monospace" font-size="14" fill="#888">19 steals • 1 win</text>
+  
+  <!-- Other Players -->
+  <rect x="142" y="880" width="1000" height="600" rx="20" fill="url(#card)" stroke="#333" stroke-width="2"/>
+  <text x="642" y="920" text-anchor="middle" font-family="monospace" font-size="28" font-weight="bold" fill="#FF6B00">TOP PLAYERS</text>
+  
+  <!-- Player 4 -->
+  <text x="162" y="970" font-family="monospace" font-size="20" fill="#ffffff">4. @potato_thief</text>
+  <text x="162" y="995" font-family="monospace" font-size="16" fill="#FF6B00">$45.67 won • 15 steals</text>
+  
+  <!-- Player 5 -->
+  <text x="162" y="1030" font-family="monospace" font-size="20" fill="#ffffff">5. @spud_runner</text>
+  <text x="162" y="1055" font-family="monospace" font-size="16" fill="#FF6B00">$34.12 won • 12 steals</text>
+  
+  <!-- Player 6 -->
+  <text x="162" y="1090" font-family="monospace" font-size="20" fill="#ffffff">6. @hot_potato_fan</text>
+  <text x="162" y="1115" font-family="monospace" font-size="16" fill="#FF6B00">$28.90 won • 10 steals</text>
+  
+  <!-- Player 7 -->
+  <text x="162" y="1150" font-family="monospace" font-size="20" fill="#ffffff">7. @potato_stealer</text>
+  <text x="162" y="1175" font-family="monospace" font-size="16" fill="#FF6B00">$23.45 won • 8 steals</text>
+  
+  <!-- Player 8 -->
+  <text x="162" y="1210" font-family="monospace" font-size="20" fill="#ffffff">8. @spud_hunter</text>
+  <text x="162" y="1235" font-family="monospace" font-size="16" fill="#FF6B00">$19.78 won • 7 steals</text>
+  
+  <!-- Player 9 -->
+  <text x="162" y="1270" font-family="monospace" font-size="20" fill="#ffffff">9. @potato_chaser</text>
+  <text x="162" y="1295" font-family="monospace" font-size="16" fill="#FF6B00">$16.34 won • 6 steals</text>
+  
+  <!-- Player 10 -->
+  <text x="162" y="1330" font-family="monospace" font-size="20" fill="#ffffff">10. @hot_spud</text>
+  <text x="162" y="1355" font-family="monospace" font-size="16" fill="#FF6B00">$12.89 won • 5 steals</text>
+  
+  <!-- Stats Summary -->
+  <rect x="142" y="1520" width="1000" height="300" rx="20" fill="url(#card)" stroke="#333" stroke-width="2"/>
+  <text x="642" y="1560" text-anchor="middle" font-family="monospace" font-size="28" font-weight="bold" fill="#FF6B00">GAME STATISTICS</text>
+  
+  <text x="162" y="1610" font-family="monospace" font-size="24" fill="#ffffff">Total Players: 1,247</text>
+  <text x="162" y="1640" font-family="monospace" font-size="24" fill="#ffffff">Total Steals: 8,934</text>
+  <text x="162" y="1670" font-family="monospace" font-size="24" fill="#ffffff">Games Played: 156</text>
+  <text x="162" y="1700" font-family="monospace" font-size="24" fill="#ffffff">Total Prize Pool: $4,567.89</text>
+  
+  <!-- Navigation -->
+  <rect x="142" y="1880" width="300" height="80" rx="20" fill="#2d2d2d"/>
+  <text x="292" y="1930" text-anchor="middle" font-family="monospace" font-size="24" fill="#ffffff">BACK TO GAME</text>
+  
+  <rect x="492" y="1880" width="300" height="80" rx="20" fill="#2d2d2d"/>
+  <text x="642" y="1930" text-anchor="middle" font-family="monospace" font-size="24" fill="#ffffff">ABOUT</text>
+  
+  <rect x="842" y="1880" width="300" height="80" rx="20" fill="#2d2d2d"/>
+  <text x="992" y="1930" text-anchor="middle" font-family="monospace" font-size="24" fill="#ffffff">DIARY</text>
+  
+  <!-- Footer -->
+  <rect x="0" y="2700" width="1284" height="78" fill="#1a1a1a"/>
+  <text x="642" y="2740" text-anchor="middle" font-family="monospace" font-size="16" fill="#888">Hot Potato Game - Leaderboard</text>
+</svg>
