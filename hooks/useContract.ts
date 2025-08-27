@@ -94,6 +94,7 @@ export const useContract = () => {
     console.log('Required ETH from contract:', requiredEthForSteal?.toString());
     if (requiredEthForSteal) {
       console.log('Required ETH in ETH:', Number(requiredEthForSteal) / 1e18);
+      console.log('Required ETH in USD (rough estimate): $', (Number(requiredEthForSteal) / 1e18 * 4630).toFixed(2));
     }
   }, [requiredEthForSteal]);
 
@@ -106,14 +107,10 @@ export const useContract = () => {
       return requiredEthForSteal;
     }
     
-    // If requiredEthForSteal is not available, calculate it manually
-    // This is a fallback for when the contract read fails
-    console.log('Required ETH not available from contract, using fallback calculation');
-    
-    // For Base Sepolia, we'll use a rough estimate based on $0.33
-    // This is not ideal but better than sending 0 ETH
-    const estimatedEthFor33Cents = BigInt(100000000000000000); // 0.1 ETH as fallback
-    return estimatedEthFor33Cents;
+    // If requiredEthForSteal is not available, we can't proceed
+    // The contract should provide this value
+    console.error('Required ETH not available from contract - cannot proceed with steal');
+    throw new Error('Contract data not available - please refresh and try again');
   };
 
   // Helper function to check and switch to correct network
@@ -244,11 +241,13 @@ export const useContract = () => {
       // Provide more specific error messages
       let errorMessage = writeError.message;
       if (writeError.message.includes('insufficient funds')) {
-        errorMessage = 'Insufficient ETH balance for gas fees. Please add more ETH to your wallet.';
+        errorMessage = 'Insufficient ETH balance. The transaction requires more ETH than you have available.';
       } else if (writeError.message.includes('user rejected')) {
-        errorMessage = 'Transaction was rejected by user.';
+        errorMessage = 'Transaction was cancelled by user.';
       } else if (writeError.message.includes('chain')) {
         errorMessage = 'Network mismatch. Please ensure you are on Base Sepolia network.';
+      } else if (writeError.message.includes('execution reverted')) {
+        errorMessage = 'Transaction failed. This could be due to insufficient balance or incorrect payment amount.';
       }
       
       alert(`Transaction failed: ${errorMessage}`);
@@ -428,16 +427,6 @@ export const useContract = () => {
       console.log('Required ETH for steal:', requiredEth.toString(), 'wei');
       console.log('Required ETH for steal:', Number(requiredEth) / 1e18, 'ETH');
       
-      // Check if user has enough ETH for steal fee + gas
-      const totalRequired = requiredEth + BigInt(1000000000000000); // steal fee + 0.001 ETH for gas
-      console.log('Total required (steal fee + gas):', Number(totalRequired) / 1e18, 'ETH');
-      
-      if (ethBalance && ethBalance.value < totalRequired) {
-        alert(`Insufficient ETH balance. You need ${Number(totalRequired) / 1e18} ETH (${Number(requiredEth) / 1e18} for steal fee + gas). Current balance: ${Number(ethBalance.value) / 1e18} ETH`);
-        setGameState(prev => ({ ...prev, isLoading: false }));
-        return;
-      }
-
       setGameState(prev => ({ ...prev, isLoading: true }));
 
       console.log('Stealing potato with payment:', requiredEth.toString());
