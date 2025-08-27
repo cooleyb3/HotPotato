@@ -338,7 +338,7 @@ export default function HotPotatoGame() {
 
 
         {/* Steal Button */}
-        {isConnected && gameState.currentHolder !== '0x0000000000000000000000000000000000000000' && gameState.currentHolder !== account && (
+        {isConnected && gameState.currentHolder && gameState.currentHolder !== '0x0000000000000000000000000000000000000000' && gameState.currentHolder !== account && (
           <Button
             onClick={handleSteal}
             className={`w-full py-4 mb-6 sm:mb-8 mx-1 font-mono text-sm transition-all duration-300 ${
@@ -350,6 +350,26 @@ export default function HotPotatoGame() {
           >
             <span className="text-sm">
               {gameState.isLoading ? 'Stealing...' : `STEAL THE POTATO – $${(parseInt(gameState.stealFeeUsd) / 100).toFixed(2)}`}
+            </span>
+          </Button>
+        )}
+
+        {/* Debug Info - Remove this after testing */}
+        {isConnected && (
+          <div className="text-xs text-[#F5F5F5]/50 font-mono mb-2 mx-1">
+            Debug: Current Holder: {gameState.currentHolder || 'undefined'} | Account: {account || 'undefined'} | Connected: {isConnected ? 'true' : 'false'}
+          </div>
+        )}
+
+        {/* Fallback Steal Button - Show when connected but current holder data is loading */}
+        {isConnected && (!gameState.currentHolder || gameState.currentHolder === '0x0000000000000000000000000000000000000000') && (
+          <Button
+            onClick={handleSteal}
+            className="w-full py-4 mb-6 sm:mb-8 mx-1 font-mono text-sm bg-[#FF6B00] hover:bg-[#FF6B00]/80 text-black"
+            disabled={gameState.isLoading}
+          >
+            <span className="text-sm">
+              {gameState.isLoading ? 'Loading...' : 'STEAL THE POTATO (First Steal!)'}
             </span>
           </Button>
         )}
