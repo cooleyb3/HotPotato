@@ -390,49 +390,7 @@ export const useContract = () => {
     getUserData();
   }, [isConnected, address]);
 
-  const startGame = async () => {
-    try {
-      if (!isConnected || !address) {
-        console.log('Wallet not connected');
-        alert('Please connect your wallet first');
-        return;
-      }
 
-      // Check if we're on the correct network
-      const networkOk = await ensureCorrectNetwork();
-      if (!networkOk) {
-        setGameState(prev => ({ ...prev, isLoading: false }));
-        return;
-      }
-
-      // Check ETH balance
-      if (!checkEthBalance()) {
-        alert(`Insufficient ETH balance for gas fees. Current balance: ${ethBalance ? `${Number(ethBalance.value) / 1e18} ETH` : 'Unknown'}. You need at least 0.001 ETH for gas fees.`);
-        setGameState(prev => ({ ...prev, isLoading: false }));
-        return;
-      }
-
-      setGameState(prev => ({ ...prev, isLoading: true }));
-      
-      console.log('Starting game with holder:', address);
-      console.log('Contract address:', contractAddress);
-      console.log('Current network:', chainId);
-      console.log('ETH balance:', ethBalance ? `${Number(ethBalance.value) / 1e18} ETH` : 'Unknown');
-      
-      // Call contract to start game
-      writeContract({
-        address: contractAddress,
-        abi: CONTRACT_ABI,
-        functionName: 'startGame',
-        args: [address],
-      });
-      
-    } catch (error) {
-      console.error('Error starting game:', error);
-      alert(`Failed to start game: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      setGameState(prev => ({ ...prev, isLoading: false }));
-    }
-  };
 
   const stealPotato = async (message?: string) => {
     try {
@@ -461,7 +419,7 @@ export const useContract = () => {
       }
 
       setGameState(prev => ({ ...prev, isLoading: true }));
-      
+
       console.log('Stealing potato with payment:', requiredEth.toString());
       console.log('Contract address:', contractAddress);
       console.log('Current network:', chainId);
@@ -526,7 +484,6 @@ export const useContract = () => {
     account: address,
     user,
     isLoading: isLoading || isWritePending,
-    startGame,
     stealPotato,
     popPotato,
     simulateOtherPlayerSteal,

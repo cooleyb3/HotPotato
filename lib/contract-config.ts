@@ -2,7 +2,7 @@
 export const CONTRACT_CONFIG = {
   // Base Sepolia Testnet
   baseSepolia: {
-    contractAddress: "0xdf589d494709432447fae1e91e177b8a690fc51a",
+    contractAddress: "0xc844a57a38d29bd10d217466fabad39a7cad6ad2",
     chainId: 84532,
     rpcUrl: "https://sepolia.base.org",
     blockExplorer: "https://sepolia.basescan.org",
@@ -91,13 +91,7 @@ export const CONTRACT_ABI = [
     stateMutability: "view",
     type: "function"
   },
-  {
-    inputs: [{ internalType: "address", name: "initialHolder", type: "address" }],
-    name: "startGame",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function"
-  },
+
   {
     inputs: [],
     name: "stealPotato",

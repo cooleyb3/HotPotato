@@ -1,9 +1,14 @@
 import hre from "hardhat";
 import { formatEther, parseEther } from "viem";
+import { baseSepolia } from "viem/chains";
 
 async function main() {
-  const [deployer] = await hre.viem.getWalletClients();
-  const publicClient = await hre.viem.getPublicClient();
+  const [deployer] = await hre.viem.getWalletClients({
+    chain: baseSepolia,
+  });
+  const publicClient = await hre.viem.getPublicClient({
+    chain: baseSepolia,
+  });
   const balance = await publicClient.getBalance({ address: deployer.account.address });
   
   console.log("Deployer address:", deployer.account.address);

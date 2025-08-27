@@ -33,9 +33,13 @@ contract HotPotatoGame is Ownable, ReentrancyGuard {
      * @param _priceFeedAddress Chainlink ETH/USD price feed address for Base
      */
     constructor(uint256 _stealFeeUsd, address _priceFeedAddress) Ownable(msg.sender) {
+        require(_stealFeeUsd > 0, "Fee must be greater than 0");
+        require(_stealFeeUsd <= 10000, "Fee cannot exceed $100"); // 10000 cents
+        require(_priceFeedAddress != address(0), "Invalid price feed address");
+        
         stealFeeUsd = _stealFeeUsd;
         priceFeed = AggregatorV3Interface(_priceFeedAddress);
-        currentHolder = address(0); // No initial holder
+        currentHolder = address(this); // Contract starts as the holder
         potSize = 0;
         stealCount = 0;
     }
@@ -46,8 +50,17 @@ contract HotPotatoGame is Ownable, ReentrancyGuard {
      * @return ethAmount Amount in wei
      */
     function getEthAmount(uint256 usdCents) internal view returns (uint256 ethAmount) {
-        (, int256 price,,,) = priceFeed.latestRoundData();
+        (
+            uint80 roundId,
+            int256 price,
+            ,
+            uint256 updatedAt,
+            uint80 answeredInRound
+        ) = priceFeed.latestRoundData();
+        
         require(price > 0, "Invalid price feed");
+        require(updatedAt >= block.timestamp - 3600, "Price feed too old"); // 1 hour
+        require(answeredInRound >= roundId, "Stale price feed");
         
         // Convert USD cents to USD (divide by 100)
         uint256 usdAmount = usdCents * (10 ** (18 - USD_CENTS_DECIMALS));
@@ -60,11 +73,11 @@ contract HotPotatoGame is Ownable, ReentrancyGuard {
      * @dev Allows a player to steal the potato by paying the fee
      */
     function stealPotato() external payable nonReentrant {
-        require(currentHolder != address(0), "No potato to steal");
-        require(msg.sender != currentHolder, "Cannot steal from yourself");
+        require(currentHolder != address(0), "Game not active - no potato to steal");
+        require(msg.sender != currentHolder, "Cannot steal potato from yourself");
         
         uint256 requiredEth = getEthAmount(stealFeeUsd);
-        require(msg.value == requiredEth, "Incorrect payment amount");
+        require(msg.value == requiredEth, "Incorrect payment: expected {requiredEth} wei, got {msg.value} wei");
         
         address previousHolder = currentHolder;
         currentHolder = msg.sender;
@@ -86,8 +99,8 @@ contract HotPotatoGame is Ownable, ReentrancyGuard {
         uint256 ownerCut = (potSize * OWNER_CUT_PERCENTAGE) / 100;
         uint256 winnerAmount = potSize - ownerCut;
         
-        // Reset game state
-        currentHolder = address(0);
+        // Reset game state - contract becomes holder again
+        currentHolder = address(this);
         potSize = 0;
         
         // Distribute winnings
@@ -104,15 +117,7 @@ contract HotPotatoGame is Ownable, ReentrancyGuard {
         emit PotatoPopped(winner, getUsdAmount(winnerAmount), getUsdAmount(ownerCut));
     }
     
-    /**
-     * @dev Starts a new game by setting an initial holder
-     * @param initialHolder The address to start as the potato holder
-     */
-    function startGame(address initialHolder) external onlyOwner {
-        require(currentHolder == address(0), "Game already in progress");
-        require(initialHolder != address(0), "Invalid initial holder");
-        currentHolder = initialHolder;
-    }
+
     
     /**
      * @dev Updates the steal fee (only owner)
@@ -128,8 +133,17 @@ contract HotPotatoGame is Ownable, ReentrancyGuard {
      * @return usdAmount Amount in USD cents
      */
     function getUsdAmount(uint256 ethAmount) public view returns (uint256 usdAmount) {
-        (, int256 price,,,) = priceFeed.latestRoundData();
+        (
+            uint80 roundId,
+            int256 price,
+            ,
+            uint256 updatedAt,
+            uint80 answeredInRound
+        ) = priceFeed.latestRoundData();
+        
         require(price > 0, "Invalid price feed");
+        require(updatedAt >= block.timestamp - 3600, "Price feed too old"); // 1 hour
+        require(answeredInRound >= roundId, "Stale price feed");
         
         // Convert ETH to USD: (ETH * price * 10^8) / 10^18
         usdAmount = (ethAmount * uint256(price)) / (10 ** (18 - PRICE_FEED_DECIMALS));

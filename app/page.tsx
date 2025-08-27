@@ -21,7 +21,7 @@ export default function HotPotatoGame() {
   const [showDevWarning, setShowDevWarning] = useState(true)
 
   // Contract integration
-  const { gameState, isConnected, account, user, startGame, stealPotato, popPotato, simulateOtherPlayerSteal, contractAddress, chainId, isLoading } = useContract()
+  const { gameState, isConnected, account, user, stealPotato, popPotato, simulateOtherPlayerSteal, contractAddress, chainId, isLoading } = useContract()
   
   // Wallet connection
   const { connect, connectors, isPending: isConnecting } = useConnect()
@@ -135,31 +135,7 @@ export default function HotPotatoGame() {
     "Let's see how long I can hold this!, @cryptoking",
   ]
 
-  const handleStartGame = async () => {
-    if (!isConnected) {
-      if (connectors.length > 0) {
-        await connect({ connector: connectors[0] })
-      }
-      return
-    }
-    
-    try {
-      await startGame()
-      
-      // Add game start to history
-      const newHistoryEntry = {
-        newHolder: account ? account.slice(0, 6) + '...' + account.slice(-4) : 'Unknown',
-        previousHolder: 'No one',
-        message: "Game started! 🎮",
-        time: "Just now",
-        type: "steal"
-      }
-      
-      setGameHistory(prev => [newHistoryEntry, ...prev.slice(0, 7)])
-    } catch (error) {
-      console.error('Failed to start game:', error)
-    }
-  }
+
 
   if (showAbout) {
     return (
@@ -359,18 +335,7 @@ export default function HotPotatoGame() {
           </div>
         </Card>
 
-        {/* Start Game Button */}
-        {isConnected && gameState.currentHolder === '0x0000000000000000000000000000000000000000' && (
-          <Button
-            onClick={handleStartGame}
-            className="w-full py-4 mb-4 mx-1 font-mono text-sm bg-[#00FF84] hover:bg-[#00FF84]/80 text-black"
-            disabled={gameState.isLoading}
-          >
-            <span className="text-sm">
-              {gameState.isLoading ? 'Starting Game...' : 'START GAME'}
-            </span>
-          </Button>
-        )}
+
 
         {/* Steal Button */}
         {isConnected && gameState.currentHolder !== '0x0000000000000000000000000000000000000000' && gameState.currentHolder !== account && (

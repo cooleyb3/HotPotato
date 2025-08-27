@@ -2,6 +2,7 @@ import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox-viem";
 import * as dotenv from "dotenv";
 import { resolve } from "path";
+import { baseSepolia } from "viem/chains";
 
 // Load environment variables from .env file
 dotenv.config({ path: resolve(__dirname, ".env") });
