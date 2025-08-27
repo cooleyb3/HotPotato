@@ -1,8 +1,8 @@
 // Contract configuration for Hot Potato Game
 export const CONTRACT_CONFIG = {
-  // Base Sepolia Testnet
-  baseSepolia: {
-    contractAddress: "0xc844a57a38d29bd10d217466fabad39a7cad6ad2",
+      // Base Sepolia Testnet
+    baseSepolia: {
+      contractAddress: "0x063656f13e0c4f6090da5ecdcf25dabb7da7e611",
     chainId: 84532,
     rpcUrl: "https://sepolia.base.org",
     blockExplorer: "https://sepolia.basescan.org",

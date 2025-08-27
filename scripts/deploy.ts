@@ -5,8 +5,8 @@ import hre from "hardhat";
 async function main() {
   console.log("Deploying HotPotatoGame contract...");
 
-  // Base mainnet ETH/USD price feed address
-  const ETH_USD_PRICE_FEED = "0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70";
+  // Base Sepolia ETH/USD price feed address
+  const ETH_USD_PRICE_FEED = "0x4aDC67696bA383F43DD60A9e78F2C97Fbbfc7cb1";
   
   // Steal fee in USD cents (33 = $0.33)
   const STEAL_FEE_USD_CENTS = 33n;
