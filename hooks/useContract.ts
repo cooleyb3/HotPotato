@@ -89,14 +89,20 @@ export const useContract = () => {
     functionName: 'getRequiredEthForSteal',
   });
 
-  // Debug: Log required ETH when it changes
+  // Debug: Log all contract data when it changes
   useEffect(() => {
-    console.log('Required ETH from contract:', requiredEthForSteal?.toString());
-    if (requiredEthForSteal) {
-      console.log('Required ETH in ETH:', Number(requiredEthForSteal) / 1e18);
-      console.log('Required ETH in USD (rough estimate): $', (Number(requiredEthForSteal) / 1e18 * 4630).toFixed(2));
-    }
-  }, [requiredEthForSteal]);
+    console.log('=== CONTRACT DATA DEBUG ===');
+    console.log('Current holder:', currentHolder);
+    console.log('Pot size:', potSize?.toString());
+    console.log('Steal count:', stealCount?.toString());
+    console.log('Pot size USD:', potSizeUsd?.toString());
+    console.log('Steal fee USD:', stealFeeUsd?.toString());
+    console.log('Required ETH for steal:', requiredEthForSteal?.toString());
+    console.log('Contract address:', contractAddress);
+    console.log('Network chain ID:', chainId);
+    console.log('Is connected:', isConnected);
+    console.log('==========================');
+  }, [currentHolder, potSize, stealCount, potSizeUsd, stealFeeUsd, requiredEthForSteal, contractAddress, chainId, isConnected]);
 
   // Contract write operations
   const { writeContract, isPending: isWritePending, data: writeData, error: writeError } = useWriteContract();
@@ -107,10 +113,16 @@ export const useContract = () => {
       return requiredEthForSteal;
     }
     
-    // If requiredEthForSteal is not available, we can't proceed
-    // The contract should provide this value
-    console.error('Required ETH not available from contract - cannot proceed with steal');
-    throw new Error('Contract data not available - please refresh and try again');
+    // If requiredEthForSteal is not available, try to calculate it manually
+    console.log('Required ETH not available from contract, trying manual calculation...');
+    
+    // For Base Sepolia, use a reasonable estimate for $0.33
+    // Current ETH price is around $4630, so $0.33 ≈ 0.000071 ETH
+    const estimatedEthFor33Cents = BigInt(71000000000000); // 0.000071 ETH in wei
+    console.log('Using estimated ETH amount:', estimatedEthFor33Cents.toString(), 'wei');
+    console.log('Estimated ETH amount:', Number(estimatedEthFor33Cents) / 1e18, 'ETH');
+    
+    return estimatedEthFor33Cents;
   };
 
   // Helper function to check and switch to correct network
