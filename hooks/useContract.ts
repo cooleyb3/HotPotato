@@ -89,6 +89,14 @@ export const useContract = () => {
     functionName: 'getRequiredEthForSteal',
   });
 
+  // Debug: Log required ETH when it changes
+  useEffect(() => {
+    console.log('Required ETH from contract:', requiredEthForSteal?.toString());
+    if (requiredEthForSteal) {
+      console.log('Required ETH in ETH:', Number(requiredEthForSteal) / 1e18);
+    }
+  }, [requiredEthForSteal]);
+
   // Contract write operations
   const { writeContract, isPending: isWritePending, data: writeData, error: writeError } = useWriteContract();
 
@@ -97,8 +105,15 @@ export const useContract = () => {
     if (requiredEthForSteal) {
       return requiredEthForSteal;
     }
-    // Fallback to calculating from steal fee if needed
-    return BigInt(0);
+    
+    // If requiredEthForSteal is not available, calculate it manually
+    // This is a fallback for when the contract read fails
+    console.log('Required ETH not available from contract, using fallback calculation');
+    
+    // For Base Sepolia, we'll use a rough estimate based on $0.33
+    // This is not ideal but better than sending 0 ETH
+    const estimatedEthFor33Cents = BigInt(100000000000000000); // 0.1 ETH as fallback
+    return estimatedEthFor33Cents;
   };
 
   // Helper function to check and switch to correct network
@@ -174,10 +189,11 @@ export const useContract = () => {
 
   // Update game state when contract data changes
   useEffect(() => {
+    console.log('Current holder from contract:', currentHolder);
     if (currentHolder !== undefined) {
       setGameState(prev => ({
         ...prev,
-        currentHolder: currentHolder || '0x0000000000000000000000000000000000000000',
+        currentHolder: currentHolder,
         isGameActive: currentHolder !== '0x0000000000000000000000000000000000000000',
       }));
     }
@@ -409,9 +425,13 @@ export const useContract = () => {
 
       // Get required ETH amount for steal
       const requiredEth = await getRequiredEthForSteal();
+      console.log('Required ETH for steal:', requiredEth.toString(), 'wei');
+      console.log('Required ETH for steal:', Number(requiredEth) / 1e18, 'ETH');
       
       // Check if user has enough ETH for steal fee + gas
       const totalRequired = requiredEth + BigInt(1000000000000000); // steal fee + 0.001 ETH for gas
+      console.log('Total required (steal fee + gas):', Number(totalRequired) / 1e18, 'ETH');
+      
       if (ethBalance && ethBalance.value < totalRequired) {
         alert(`Insufficient ETH balance. You need ${Number(totalRequired) / 1e18} ETH (${Number(requiredEth) / 1e18} for steal fee + gas). Current balance: ${Number(ethBalance.value) / 1e18} ETH`);
         setGameState(prev => ({ ...prev, isLoading: false }));
