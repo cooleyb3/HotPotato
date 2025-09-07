@@ -113,7 +113,7 @@ export default function HotPotatoGame() {
       
       // Add to history with temporary message
       const newHistoryEntry = {
-        newHolder: account ? account.slice(0, 6) + '...' + account.slice(-4) : 'Unknown',
+        newHolder: account ? (account as string).slice(0, 6) + '...' + (account as string).slice(-4) : 'Unknown',
         previousHolder: previousHolder === '0x0000000000000000000000000000000000000000' 
           ? 'No one' 
           : previousHolder.slice(0, 6) + '...' + previousHolder.slice(-4),
