@@ -52,38 +52,38 @@ export const useContract = () => {
   });
   const contractAddress = contractConfig.contractAddress as `0x${string}`;
 
-  // Contract read operations
-  const { data: currentHolder } = useReadContract({
+  // Contract read operations with refetch capability
+  const { data: currentHolder, refetch: refetchCurrentHolder } = useReadContract({
     address: contractAddress,
     abi: CONTRACT_ABI,
     functionName: 'currentHolder',
   });
 
-  const { data: potSize } = useReadContract({
+  const { data: potSize, refetch: refetchPotSize } = useReadContract({
     address: contractAddress,
     abi: CONTRACT_ABI,
     functionName: 'potSize',
   });
 
-  const { data: stealCount } = useReadContract({
+  const { data: stealCount, refetch: refetchStealCount } = useReadContract({
     address: contractAddress,
     abi: CONTRACT_ABI,
     functionName: 'stealCount',
   });
 
-  const { data: potSizeUsd } = useReadContract({
+  const { data: potSizeUsd, refetch: refetchPotSizeUsd } = useReadContract({
     address: contractAddress,
     abi: CONTRACT_ABI,
     functionName: 'getPotSizeUsd',
   });
 
-  const { data: stealFeeUsd } = useReadContract({
+  const { data: stealFeeUsd, refetch: refetchStealFeeUsd } = useReadContract({
     address: contractAddress,
     abi: CONTRACT_ABI,
     functionName: 'getStealFeeUsd',
   });
 
-  const { data: requiredEthForSteal } = useReadContract({
+  const { data: requiredEthForSteal, refetch: refetchRequiredEth } = useReadContract({
     address: contractAddress,
     abi: CONTRACT_ABI,
     functionName: 'getRequiredEthForSteal',
@@ -258,6 +258,8 @@ export const useContract = () => {
         errorMessage = 'Transaction was cancelled by user.';
       } else if (writeError.message.includes('chain')) {
         errorMessage = 'Network mismatch. Please ensure you are on Base Sepolia network.';
+      } else if (writeError.message.includes('Cannot steal potato from yourself')) {
+        errorMessage = 'You are already the current holder! Wait for someone else to steal from you.';
       } else if (writeError.message.includes('execution reverted')) {
         errorMessage = 'Transaction failed. This could be due to insufficient balance or incorrect payment amount.';
       }
@@ -266,11 +268,34 @@ export const useContract = () => {
     }
   }, [writeError]);
 
+  // Function to refresh all contract data
+  const refreshContractData = async () => {
+    console.log('Refreshing contract data after transaction...');
+    try {
+      await Promise.all([
+        refetchCurrentHolder(),
+        refetchPotSize(),
+        refetchStealCount(),
+        refetchPotSizeUsd(),
+        refetchStealFeeUsd(),
+        refetchRequiredEth(),
+      ]);
+      console.log('Contract data refreshed successfully');
+    } catch (error) {
+      console.error('Error refreshing contract data:', error);
+    }
+  };
+
   // Monitor write contract success
   useEffect(() => {
     if (writeData) {
       console.log('Transaction successful:', writeData);
       setGameState(prev => ({ ...prev, isLoading: false }));
+      
+      // Refresh contract data after successful transaction
+      setTimeout(() => {
+        refreshContractData();
+      }, 2000); // Wait 2 seconds for transaction to be mined
     }
   }, [writeData]);
 
@@ -438,7 +463,7 @@ export const useContract = () => {
       const requiredEth = await getRequiredEthForSteal();
       console.log('Required ETH for steal:', requiredEth.toString(), 'wei');
       console.log('Required ETH for steal:', Number(requiredEth) / 1e18, 'ETH');
-      
+
       setGameState(prev => ({ ...prev, isLoading: true }));
 
       console.log('Stealing potato with payment:', requiredEth.toString());
@@ -508,6 +533,7 @@ export const useContract = () => {
     stealPotato,
     popPotato,
     simulateOtherPlayerSteal,
+    refreshContractData,
     contractAddress,
     chainId,
   };

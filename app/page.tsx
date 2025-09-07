@@ -21,7 +21,7 @@ export default function HotPotatoGame() {
   const [showDevWarning, setShowDevWarning] = useState(true)
 
   // Contract integration
-  const { gameState, isConnected, account, user, stealPotato, popPotato, simulateOtherPlayerSteal, contractAddress, chainId, isLoading } = useContract()
+  const { gameState, isConnected, account, user, stealPotato, popPotato, simulateOtherPlayerSteal, refreshContractData, contractAddress, chainId, isLoading } = useContract()
   
   // Wallet connection
   const { connect, connectors, isPending: isConnecting } = useConnect()
@@ -358,6 +358,20 @@ export default function HotPotatoGame() {
         {isConnected && (
           <div className="text-xs text-[#F5F5F5]/50 font-mono mb-2 mx-1">
             Debug: Current Holder: {gameState.currentHolder || 'undefined'} | Account: {account || 'undefined'} | Connected: {isConnected ? 'true' : 'false'}
+          </div>
+        )}
+
+        {/* Refresh Button */}
+        {isConnected && (
+          <div className="text-center mb-4">
+            <Button
+              onClick={refreshContractData}
+              variant="outline"
+              size="sm"
+              className="text-xs font-mono border-[#F5F5F5]/20 text-[#F5F5F5]/70 hover:text-[#00FF84]"
+            >
+              🔄 Refresh Game State
+            </Button>
           </div>
         )}
 
