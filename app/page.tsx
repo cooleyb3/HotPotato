@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import Link from "next/link"
-import { useContract } from "@/hooks/useContract"
+// import { useContract } from "@/hooks/useContract" // Removed - will be replaced with USDT version
 import { useConnect } from "wagmi"
 
 export default function HotPotatoGame() {
@@ -20,8 +20,34 @@ export default function HotPotatoGame() {
   const [gameHistory, setGameHistory] = useState<any[]>([])
   const [showDevWarning, setShowDevWarning] = useState(true)
 
-  // Contract integration
-  const { gameState, isConnected, account, user, stealPotato, popPotato, simulateOtherPlayerSteal, refreshContractData, contractAddress, chainId, isLoading } = useContract()
+  // Contract integration (placeholder until USDT contract is deployed)
+  const gameState = {
+    currentHolder: '0x0000000000000000000000000000000000000000',
+    potSizeUsd: '0.00',
+    stealCount: 0,
+    stealFeeUsd: '33', // $0.33 in cents
+    isLoading: false,
+  }
+  const isConnected = false
+  const account = null
+  const user = null
+  const contractAddress = '0x0000000000000000000000000000000000000000'
+  const chainId = 84532
+  const isLoading = false
+  
+  // Placeholder functions (non-functional until USDT contract is deployed)
+  const stealPotato = async () => {
+    console.log('Steal function - will be connected to USDT contract')
+  }
+  const popPotato = async () => {
+    console.log('Pop function - will be connected to USDT contract')
+  }
+  const simulateOtherPlayerSteal = () => {
+    console.log('Simulate function - will be connected to USDT contract')
+  }
+  const refreshContractData = () => {
+    console.log('Refresh function - will be connected to USDT contract')
+  }
   
   // Wallet connection
   const { connect, connectors, isPending: isConnecting } = useConnect()
@@ -148,7 +174,7 @@ export default function HotPotatoGame() {
               <h2 className="text-[#FF6B00] font-mono font-semibold mb-2">Rules:</h2>
               <ol className="space-y-1 text-xs font-mono">
                 <li>1. One potato exists</li>
-                <li>2. Steal for $0.33</li>
+                <li>2. Steal for $0.33 USDT</li>
                 <li>3. Pot grows each steal</li>
                 <li>4. Pops 2-5x daily (random)</li>
                 <li>5. Holder wins pot when it pops</li>
@@ -189,7 +215,7 @@ export default function HotPotatoGame() {
               <div className="text-[#FF6B00] text-2xl mb-4">⚠️</div>
               <h3 className="font-mono text-lg text-[#FF6B00] mb-2">DEVELOPMENT MODE</h3>
               <p className="font-mono text-sm text-[#F5F5F5] mb-6 leading-relaxed">
-                This app is still in development. Smart contract not yet deployed to mainnet. All transactions are simulated.
+                This app is still in development. USDT-based smart contract not yet deployed. All transactions are simulated.
               </p>
               <Button
                 onClick={() => setShowDevWarning(false)}
@@ -349,7 +375,7 @@ export default function HotPotatoGame() {
             disabled={gameState.isLoading}
           >
             <span className="text-sm">
-              {gameState.isLoading ? 'Stealing...' : `STEAL THE POTATO – $${(parseInt(gameState.stealFeeUsd) / 100).toFixed(2)}`}
+              {gameState.isLoading ? 'Stealing...' : `STEAL THE POTATO – $${(parseInt(gameState.stealFeeUsd) / 100).toFixed(2)} USDT`}
             </span>
           </Button>
         )}
@@ -383,7 +409,7 @@ export default function HotPotatoGame() {
             disabled={gameState.isLoading}
           >
             <span className="text-sm">
-              {gameState.isLoading ? 'Loading...' : 'STEAL THE POTATO (First Steal!)'}
+              {gameState.isLoading ? 'Loading...' : 'STEAL THE POTATO (First Steal!) - $0.33 USDT'}
             </span>
           </Button>
         )}
@@ -406,59 +432,21 @@ export default function HotPotatoGame() {
           </Card>
         )}
 
-        {/* Wallet Status Section */}
-        <Card className="bg-black border-[#F5F5F5]/30 p-3 sm:p-4 mb-6 sm:mb-8 mx-1">
-          <h3 className="text-[#FF6B00] font-mono text-xs mb-3">WALLET STATUS</h3>
-          
-          {!isConnected ? (
-            <div className="text-center">
-              <div className="text-[#F5F5F5]/70 font-mono text-xs mb-3">
-                Connect your wallet to play the Hot Potato game
-              </div>
-              <Button
-                onClick={() => {
-                  if (connectors.length > 0) {
-                    connect({ connector: connectors[0] });
-                  }
-                }}
-                className="w-full py-3 font-mono text-sm bg-[#FF6B00] hover:bg-[#FF6B00]/80 text-black"
-                disabled={connectors.length === 0 || isConnecting}
-              >
-                <span className="text-sm">
-                  {isConnecting ? 'CONNECTING...' : 
-                   connectors.length === 0 ? 'NO WALLET AVAILABLE' : 'CONNECT WALLET TO PLAY'}
-                </span>
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-2 text-xs font-mono">
-              <div className="flex justify-between items-center">
-                <span className="text-[#F5F5F5]/70">Status:</span>
-                <span className="text-[#00FF84]">
-                  {isLoading ? '● Loading...' : '● Connected'}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-[#F5F5F5]/70">Address:</span>
-                <span className="text-[#F5F5F5]/90 font-mono">
-                  {account?.slice(0, 6)}...{account?.slice(-4)}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-[#F5F5F5]/70">Network:</span>
-                <span className="text-[#F5F5F5]/90">
-                  {chainId === 84532 ? 'Base Sepolia' : chainId === 8453 ? 'Base' : `Chain ID: ${chainId}`}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-[#F5F5F5]/70">Contract:</span>
-                <span className="text-[#F5F5F5]/90 font-mono text-[10px]">
-                  {contractAddress?.slice(0, 6)}...{contractAddress?.slice(-4)}
-                </span>
-              </div>
-            </div>
-          )}
-        </Card>
+        {/* Connect Wallet Button */}
+        <Button
+          onClick={() => {
+            if (connectors.length > 0) {
+              connect({ connector: connectors[0] });
+            }
+          }}
+          className="w-full py-3 font-mono text-sm bg-[#FF6B00] hover:bg-[#FF6B00]/80 text-black mb-6 sm:mb-8 mx-1"
+          disabled={connectors.length === 0 || isConnecting}
+        >
+          <span className="text-sm">
+            {isConnecting ? 'CONNECTING...' : 
+             connectors.length === 0 ? 'NO WALLET AVAILABLE' : 'CONNECT WALLET TO PLAY'}
+          </span>
+        </Button>
 
         {/* User Profile Section */}
         {isConnected && user && (
