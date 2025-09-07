@@ -454,16 +454,16 @@ export default function HotPotatoGame() {
             <h3 className="text-[#FF6B00] font-mono text-xs mb-3">PLAYER PROFILE</h3>
             <div className="flex items-center space-x-3">
               <img
-                src={user.pfp}
-                alt={user.displayName}
+                src={(user as any).pfp}
+                alt={(user as any).displayName}
                 className="w-8 h-8 rounded-full object-cover"
               />
               <div className="flex-1 min-w-0">
                 <div className="text-[#F5F5F5]/90 font-mono text-xs font-semibold truncate">
-                  {user.displayName}
+                  {(user as any).displayName}
                 </div>
                 <div className="text-[#F5F5F5]/70 font-mono text-[10px]">
-                  @{user.username} • FID: {user.fid}
+                  @{(user as any).username} • FID: {(user as any).fid}
                 </div>
               </div>
             </div>
