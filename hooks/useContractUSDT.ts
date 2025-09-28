@@ -46,28 +46,40 @@ export const useContractUSDT = () => {
       if (!isConnected || !address) return
 
       try {
-        // Try to get Farcaster SDK if available (only in Farcaster environment)
-        let farcasterSdk = null
-        try {
-          // This will only work in Farcaster environment
-          const { useFarcasterContext } = await import('@farcaster/miniapp-sdk')
-          // Note: We can't use hooks conditionally, so we'll handle this differently
-        } catch (error) {
-          console.log('Farcaster SDK not available - using MetaMask mode')
+        // Try to read Farcaster context if running inside Farcaster miniapp
+        const fc: any = typeof window !== 'undefined' ? (window as any).farcaster : null
+        if (fc) {
+          try {
+            if (typeof fc.actions?.signIn === 'function') {
+              await fc.actions.signIn()
+            }
+          } catch {}
+
+          const ctx = (typeof fc.getContext === 'function') ? await fc.getContext() : fc.context
+          const fcUser = ctx?.user
+
+          if (fcUser) {
+            setUser({
+              fid: String(fcUser.fid ?? ''),
+              username: fcUser.username ?? 'unknown',
+              displayName: fcUser.displayName ?? fcUser.username ?? 'Unknown User',
+              pfp: fcUser.pfpUrl ?? '/abstract-geometric-shapes.png',
+              wallet: address,
+            })
+            return
+          }
         }
 
-        // For now, create a basic user profile for MetaMask testing
-        const basicUser: User = {
+        // Fallback: create a basic user profile for browser/local testing
+        setUser({
           fid: 'metamask-user',
           username: 'metamask-user',
           displayName: 'MetaMask User',
           pfp: '/abstract-geometric-shapes.png',
           wallet: address,
-        }
-        
-        setUser(basicUser)
-        console.log('✅ MetaMask user data loaded:', basicUser)
-        
+        })
+        console.log('✅ Fallback user data loaded (non-Farcaster environment)')
+
       } catch (error) {
         console.error('Error setting up user data:', error)
         // Fallback to basic user data
