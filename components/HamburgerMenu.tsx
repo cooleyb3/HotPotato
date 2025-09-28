@@ -53,7 +53,7 @@ export default function HamburgerMenu({ isConnected, user, ethBalance, account }
                     {account}
                   </div>
                   <div className="text-[#00FF84] font-mono text-[9px] sm:text-[10px] mt-1 flex items-center gap-1">
-                    <svg width="10" height="10" className="sm:w-3 sm:h-3" viewBox="0 0 24 24" fill="currentColor" className="text-[#00FF84] flex-shrink-0">
+                    <svg width="10" height="10" className="sm:w-3 sm:h-3 text-[#00FF84] flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M21 7h-3V6a3 3 0 0 0-3-3H5a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V10a3 3 0 0 0-3-3zM5 4h10a1 1 0 0 1 1 1v1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1zm15 12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V10a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6z"/>
                       <path d="M16 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/>
                     </svg>
