@@ -10,7 +10,8 @@ export const config = createConfig({
     [baseSepolia.id]: http(),
   },
   connectors: [
+    // Prefer Farcaster Miniapp first to avoid MetaMask initialization in Farcaster webview
+    miniAppConnector(), // For Farcaster environment
     metaMask(), // For localhost testing with MetaMask
-    miniAppConnector() // For Farcaster environment
   ]
 })
