@@ -4,8 +4,8 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import Link from "next/link"
-// import { useContract } from "@/hooks/useContract" // Removed - will be replaced with USDT version
-import { useConnect } from "wagmi"
+import { useContractUSDT } from "@/hooks/useContractUSDT"
+import HamburgerMenu from "@/components/HamburgerMenu"
 
 export default function HotPotatoGame() {
   const [showAbout, setShowAbout] = useState(false)
@@ -18,39 +18,24 @@ export default function HotPotatoGame() {
   const [customMessage, setCustomMessage] = useState("")
   const [selectedMessage, setSelectedMessage] = useState("")
   const [gameHistory, setGameHistory] = useState<any[]>([])
-  const [showDevWarning, setShowDevWarning] = useState(true)
 
-  // Contract integration (placeholder until USDT contract is deployed)
-  const gameState = {
-    currentHolder: '0x0000000000000000000000000000000000000000',
-    potSizeUsd: '0.00',
-    stealCount: 0,
-    stealFeeUsd: '33', // $0.33 in cents
-    isLoading: false,
-  }
-  const isConnected = false
-  const account = null
-  const user = null
-  const contractAddress = '0x0000000000000000000000000000000000000000'
-  const chainId = 84532
-  const isLoading = false
-  
-  // Placeholder functions (non-functional until USDT contract is deployed)
-  const stealPotato = async () => {
-    console.log('Steal function - will be connected to USDT contract')
-  }
-  const popPotato = async () => {
-    console.log('Pop function - will be connected to USDT contract')
-  }
-  const simulateOtherPlayerSteal = () => {
-    console.log('Simulate function - will be connected to USDT contract')
-  }
-  const refreshContractData = () => {
-    console.log('Refresh function - will be connected to USDT contract')
-  }
-  
-  // Wallet connection
-  const { connect, connectors, isPending: isConnecting } = useConnect()
+  // USDT Contract integration
+  const {
+    isConnected,
+    address: account,
+    chainId,
+    isConnecting,
+    connectors,
+    connect,
+    disconnect,
+    user,
+    gameState,
+    setGameState,
+    ethBalance,
+    stealPotato,
+    popPotato,
+    refreshContractData,
+  } = useContractUSDT()
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -174,7 +159,7 @@ export default function HotPotatoGame() {
               <h2 className="text-[#FF6B00] font-mono font-semibold mb-2">Rules:</h2>
               <ol className="space-y-1 text-xs font-mono">
                 <li>1. One potato exists</li>
-                <li>2. Steal for $0.33 USDT</li>
+                <li>2. Steal for 0.33 USDT</li>
                 <li>3. Pot grows each steal</li>
                 <li>4. Pops 2-5x daily (random)</li>
                 <li>5. Holder wins pot when it pops</li>
@@ -207,26 +192,13 @@ export default function HotPotatoGame() {
         isFever ? "animate-pulse" : ""
       }`}
     >
-      {/* Development Warning Popup */}
-      {showDevWarning && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-black border border-[#FF6B00] rounded-lg p-6 max-w-sm w-full">
-            <div className="text-center">
-              <div className="text-[#FF6B00] text-2xl mb-4">⚠️</div>
-              <h3 className="font-mono text-lg text-[#FF6B00] mb-2">DEVELOPMENT MODE</h3>
-              <p className="font-mono text-sm text-[#F5F5F5] mb-6 leading-relaxed">
-                This app is still in development. USDT-based smart contract not yet deployed. All transactions are simulated.
-              </p>
-              <Button
-                onClick={() => setShowDevWarning(false)}
-                className="w-full bg-[#FF6B00] hover:bg-[#FF6B00]/80 text-black font-mono text-sm"
-              >
-                UNDERSTOOD
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Floating Hamburger Menu */}
+      <HamburgerMenu 
+        isConnected={isConnected}
+        user={user}
+        ethBalance={ethBalance}
+        account={account || ''}
+      />
       
       <div className="max-w-md mx-auto">
         {showStealPopup && (
@@ -299,10 +271,10 @@ export default function HotPotatoGame() {
         )}
 
         {/* Header */}
-        <div className="text-center pt-2 sm:pt-6 mb-6 sm:mb-8 px-1">
-          <h1 className="font-mono text-xl sm:text-2xl mb-2 text-[#FF6B00]">LEGENDARY POTATO</h1>
-          <p className="text-[9px] sm:text-xs text-[#F5F5F5]/70 px-2 sm:px-4 font-mono">
-            Pops 2-5x daily at random. Don't hold when it pops... or do.
+        <div className="text-center pt-5 sm:pt-6 mb-6 sm:mb-8 px-1">
+          <h1 className="font-mono text-lg sm:text-[27px] mb-2 text-[#FF6B00]">LEGENDARY POTATO</h1>
+          <p className="text-[8px] sm:text-xs text-[#F5F5F5]/70 px-2 sm:px-4 font-mono">
+            Pops several times daily at random. Hold it to win the pot.
           </p>
         </div>
 
@@ -338,10 +310,19 @@ export default function HotPotatoGame() {
           <div className="grid grid-cols-2 gap-3 sm:gap-4 text-xs font-mono">
             <div>
               <div className="text-[#FF6B00] font-mono">HOLDER</div>
-              <div className="font-mono font-semibold truncate text-[#F5F5F5]/70">
-                {gameState.currentHolder === '0x0000000000000000000000000000000000000000' 
-                  ? 'No holder' 
-                  : gameState.currentHolder.slice(0, 6) + '...' + gameState.currentHolder.slice(-4)}
+              <div className="font-mono font-semibold text-[#F5F5F5]/70 overflow-hidden whitespace-nowrap">
+                <div className="animate-marquee">
+                  <span>
+                    {gameState.currentHolder === '0x0000000000000000000000000000000000000000' 
+                      ? 'Be the first to grab it, 0.33 USDT could be yours!    ' 
+                      : gameState.currentHolder.slice(0, 6) + '...' + gameState.currentHolder.slice(-4) + ' '}
+                  </span>
+                  <span>
+                    {gameState.currentHolder === '0x0000000000000000000000000000000000000000' 
+                      ? 'Be the first to grab it, 0.33 USDT could be yours!    ' 
+                      : gameState.currentHolder.slice(0, 6) + '...' + gameState.currentHolder.slice(-4) + ' '}
+                  </span>
+                </div>
               </div>
             </div>
             <div>
@@ -351,7 +332,7 @@ export default function HotPotatoGame() {
             <div>
               <div className="text-[#FF6B00] font-mono">POT</div>
               <div className="font-mono font-semibold text-[#F5F5F5]/70">
-                ${parseFloat(gameState.potSizeUsd).toFixed(2)}
+                {Math.max(0.33, parseFloat(gameState.potSizeUsd)).toFixed(2)} USDT
               </div>
             </div>
             <div>
@@ -365,110 +346,80 @@ export default function HotPotatoGame() {
 
         {/* Steal Button */}
         {isConnected && gameState.currentHolder && gameState.currentHolder !== '0x0000000000000000000000000000000000000000' && gameState.currentHolder !== account && (
+          <div>
+            <Button
+              onClick={handleSteal}
+              className={`w-full py-4 mb-1 sm:mb-2 mx-1 font-mono text-sm transition-all duration-300 ${
+                isFever
+                  ? "bg-[#00FF84] hover:bg-[#00FF84]/80 text-black animate-pulse"
+                  : "bg-[#FF6B00] hover:bg-[#FF6B00]/80 hover:ring-2 hover:ring-[#00FF84] text-black"
+              }`}
+              disabled={gameState.isLoading}
+            >
+              <span className="text-sm">
+                {gameState.isLoading ? 'Stealing...' : 'STEAL THE POTATO'}
+              </span>
+            </Button>
+            {!gameState.isLoading && (
+              <div className="text-center mt-0 mb-6">
+                <span className="text-[#FF6B00] font-mono text-xs">*0.33 USDT</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* You Hold It Button */}
+        {isConnected && gameState.currentHolder && gameState.currentHolder !== '0x0000000000000000000000000000000000000000' && gameState.currentHolder === account && (
           <Button
-            onClick={handleSteal}
-            className={`w-full py-4 mb-6 sm:mb-8 mx-1 font-mono text-sm transition-all duration-300 ${
-              isFever
-                ? "bg-[#00FF84] hover:bg-[#00FF84]/80 text-black animate-pulse"
-                : "bg-[#FF6B00] hover:bg-[#FF6B00]/80 hover:ring-2 hover:ring-[#00FF84] text-black"
-            }`}
-            disabled={gameState.isLoading}
+            className="w-full py-4 mb-1 sm:mb-8 mx-1 font-mono text-sm bg-[#00FF84] text-black cursor-not-allowed"
+            disabled={true}
           >
             <span className="text-sm">
-              {gameState.isLoading ? 'Stealing...' : `STEAL THE POTATO – $${(parseInt(gameState.stealFeeUsd) / 100).toFixed(2)} USDT`}
+              🎉 YOU HOLD IT 🎉
             </span>
           </Button>
-        )}
-
-        {/* Debug Info - Remove this after testing */}
-        {isConnected && (
-          <div className="text-xs text-[#F5F5F5]/50 font-mono mb-2 mx-1">
-            Debug: Current Holder: {gameState.currentHolder || 'undefined'} | Account: {account || 'undefined'} | Connected: {isConnected ? 'true' : 'false'}
-          </div>
-        )}
-
-        {/* Refresh Button */}
-        {isConnected && (
-          <div className="text-center mb-4">
-            <Button
-              onClick={refreshContractData}
-              variant="outline"
-              size="sm"
-              className="text-xs font-mono border-[#F5F5F5]/20 text-[#F5F5F5]/70 hover:text-[#00FF84]"
-            >
-              🔄 Refresh Game State
-            </Button>
-          </div>
         )}
 
         {/* Fallback Steal Button - Show when connected but current holder data is loading */}
         {isConnected && (!gameState.currentHolder || gameState.currentHolder === '0x0000000000000000000000000000000000000000') && (
+          <div>
+            <Button
+              onClick={handleSteal}
+              className="w-full py-4 mb-1 sm:mb-2 mx-0 font-mono text-sm bg-[#FF6B00] hover:bg-[#FF6B00]/80 text-black"
+              disabled={gameState.isLoading}
+            >
+              <span className="text-sm">
+                {gameState.isLoading ? 'Loading...' : 'STEAL THE POTATO'}
+              </span>
+            </Button>
+            {!gameState.isLoading && (
+              <div className="text-center mt-0 mb-6">
+                <span className="text-[#FF6B00] font-mono text-xs">*0.33 USDT</span>
+              </div>
+            )}
+          </div>
+        )}
+
+
+        {/* Connect Wallet Button */}
+        {!isConnected && (
           <Button
-            onClick={handleSteal}
-            className="w-full py-4 mb-6 sm:mb-8 mx-1 font-mono text-sm bg-[#FF6B00] hover:bg-[#FF6B00]/80 text-black"
-            disabled={gameState.isLoading}
+            onClick={() => {
+              if (connectors.length > 0) {
+                connect({ connector: connectors[0] });
+              }
+            }}
+            className="w-full py-3 font-mono text-sm bg-[#FF6B00] hover:bg-[#FF6B00]/80 text-black mb-6 sm:mb-8 mx-0"
+            disabled={connectors.length === 0 || isConnecting}
           >
-            <span className="text-sm">
-              {gameState.isLoading ? 'Loading...' : 'STEAL THE POTATO (First Steal!) - $0.33 USDT'}
+            <span className="text-xs sm:text-sm">
+              {isConnecting ? 'CONNECTING...' : 
+               connectors.length === 0 ? 'NO WALLET AVAILABLE' : 'CONNECT WALLET TO PLAY'}
             </span>
           </Button>
         )}
 
-        {/* Current Holder Info */}
-        {isConnected && gameState.currentHolder !== '0x0000000000000000000000000000000000000000' && gameState.currentHolder === account && (
-          <Card className="bg-black border-[#00FF84]/30 p-3 sm:p-4 mb-6 sm:mb-8 mx-1">
-            <div className="text-center">
-              <div className="text-[#00FF84] font-mono text-sm mb-2">🎉 YOU HOLD THE POTATO! 🎉</div>
-              <div className="text-[#F5F5F5]/70 font-mono text-xs mb-3">
-                Wait for someone else to steal it from you...
-              </div>
-              <Button
-                onClick={simulateOtherPlayerSteal}
-                className="bg-[#FF6B00] hover:bg-[#FF6B00]/80 text-black font-mono text-xs"
-              >
-                🧪 TEST: Simulate Other Player
-              </Button>
-            </div>
-          </Card>
-        )}
 
-        {/* Connect Wallet Button */}
-        <Button
-          onClick={() => {
-            if (connectors.length > 0) {
-              connect({ connector: connectors[0] });
-            }
-          }}
-          className="w-full py-3 font-mono text-sm bg-[#FF6B00] hover:bg-[#FF6B00]/80 text-black mb-6 sm:mb-8 mx-1"
-          disabled={connectors.length === 0 || isConnecting}
-        >
-          <span className="text-sm">
-            {isConnecting ? 'CONNECTING...' : 
-             connectors.length === 0 ? 'NO WALLET AVAILABLE' : 'CONNECT WALLET TO PLAY'}
-          </span>
-        </Button>
-
-        {/* User Profile Section */}
-        {isConnected && user && (
-          <Card className="bg-black border-[#F5F5F5]/30 p-3 sm:p-4 mb-6 sm:mb-8 mx-1">
-            <h3 className="text-[#FF6B00] font-mono text-xs mb-3">PLAYER PROFILE</h3>
-            <div className="flex items-center space-x-3">
-              <img
-                src={(user as any).pfp}
-                alt={(user as any).displayName}
-                className="w-8 h-8 rounded-full object-cover"
-              />
-              <div className="flex-1 min-w-0">
-                <div className="text-[#F5F5F5]/90 font-mono text-xs font-semibold truncate">
-                  {(user as any).displayName}
-                </div>
-                <div className="text-[#F5F5F5]/70 font-mono text-[10px]">
-                  @{(user as any).username} • FID: {(user as any).fid}
-                </div>
-              </div>
-            </div>
-          </Card>
-        )}
 
         <Card className="bg-black border-[#F5F5F5]/30 p-3 sm:p-4 mb-6 sm:mb-8 mx-1">
           <h3 className="text-[#FF6B00] font-mono text-xs mb-3">{showFullHistory ? "FULL HISTORY" : "RECENT DIARY"}</h3>
@@ -480,9 +431,9 @@ export default function HotPotatoGame() {
                   {entry.type === "steal" ? (
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xl">🥔</span>
+                        <span className="text-xl"></span>
                         <img
-                          src={getProfilePicture(entry.newHolder) || "/placeholder.svg"}
+                          src={getProfilePicture(entry.newHolder) || "/abstract-geometric-shapes.png"}
                           alt={entry.newHolder}
                           className="w-4 h-4 rounded-full object-cover"
                         />
@@ -512,9 +463,9 @@ export default function HotPotatoGame() {
             <div className="space-y-2 text-xs font-mono">
               {historyEntries.slice(0, 3).map((entry, index) => (
                 <div key={index} className="flex items-start gap-2">
-                  <span className="text-lg">🥔</span>
+                  <span className="text-lg"></span>
                   <img
-                    src={getProfilePicture(entry.newHolder) || "/placeholder.svg"}
+                    src={getProfilePicture(entry.newHolder) || "/abstract-geometric-shapes.png"}
                     alt={entry.newHolder}
                     className="w-3 h-3 rounded-full object-cover mt-0.5 flex-shrink-0"
                   />

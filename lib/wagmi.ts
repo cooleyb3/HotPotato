@@ -1,6 +1,7 @@
 import { http, createConfig } from 'wagmi'
 import { base, baseSepolia } from 'wagmi/chains'
 import { farcasterMiniApp as miniAppConnector } from '@farcaster/miniapp-wagmi-connector'
+import { metaMask } from 'wagmi/connectors'
 
 export const config = createConfig({
   chains: [base, baseSepolia],
@@ -9,6 +10,7 @@ export const config = createConfig({
     [baseSepolia.id]: http(),
   },
   connectors: [
-    miniAppConnector()
+    metaMask(), // For localhost testing with MetaMask
+    miniAppConnector() // For Farcaster environment
   ]
 })

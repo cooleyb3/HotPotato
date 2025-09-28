@@ -17,11 +17,11 @@ interface LeaderboardEntry {
 
 const mockData: Record<LeaderboardCategory, LeaderboardEntry[]> = {
   "biggest-wins": [
-    { rank: 1, handle: "@cryptoking", avatar: "/crypto-king-profile.png", value: "$2,847.50" },
-    { rank: 2, handle: "@potatoqueen", avatar: "/potato-queen-profile.png", value: "$1,923.80" },
-    { rank: 3, handle: "@hodlmaster", avatar: "/hodl-master-profile.png", value: "$1,456.20" },
-    { rank: 4, handle: "@moonboy", avatar: "/moon-boy-profile.png", value: "$987.40" },
-    { rank: 5, handle: "@degenape", avatar: "/stylized-ape-profile.png", value: "$743.60" },
+    { rank: 1, handle: "@cryptoking", avatar: "/crypto-king-profile.png", value: "2,847.50 USDT" },
+    { rank: 2, handle: "@potatoqueen", avatar: "/potato-queen-profile.png", value: "1,923.80 USDT" },
+    { rank: 3, handle: "@hodlmaster", avatar: "/hodl-master-profile.png", value: "1,456.20 USDT" },
+    { rank: 4, handle: "@moonboy", avatar: "/moon-boy-profile.png", value: "987.40 USDT" },
+    { rank: 5, handle: "@degenape", avatar: "/stylized-ape-profile.png", value: "743.60 USDT" },
   ],
   "most-wins": [
     { rank: 1, handle: "@potatoqueen", avatar: "/potato-queen-profile.png", value: "47 wins" },
